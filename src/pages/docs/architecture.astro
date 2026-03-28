@@ -1,0 +1,211 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+
+const base = import.meta.env.BASE_URL;
+---
+
+<DocsLayout title="Architecture" description="RoxyProxy system architecture. SQLite with WAL mode, batched writes, SSE event streaming, and per-domain certificate caching." headings={[
+  { id: "overview", text: "Overview", depth: 2 },
+  { id: "key-design-decisions", text: "Key Design Decisions", depth: 2 },
+  { id: "data-storage", text: "Data Storage", depth: 2 },
+  { id: "file-paths", text: "File Paths", depth: 2 },
+  { id: "project-structure", text: "Project Structure", depth: 2 },
+  { id: "related", text: "Related", depth: 2 },
+]}>
+  <div class="prose-custom">
+    <p>
+      RoxyProxy is a single Node.js process that runs the intercepting proxy, REST API,
+      web UI, and background cleanup -- all on two ports.
+    </p>
+
+    <h2 id="overview">Overview</h2>
+    <pre class="diagram"><code>                    ┌─────────────────────────────────────────┐
+                    │              RoxyProxy                   │
+                    │                                         │
+  HTTP/S traffic    │  ┌──────────────┐    ┌──────────────┐  │
+ ─────────────────► │  │ Proxy Server │───►│  EventManager │  │
+                    │  │    :8080     │    │  (pub/sub)    │──┼──► SSE to Web UI
+                    │  └──────┬───────┘    └──────────────┘  │
+                    │         │                               │
+                    │         ▼                               │
+                    │  ┌──────────────┐    ┌──────────────┐  │
+                    │  │   SQLite DB  │◄───│   Cleanup    │  │
+                    │  │  (batched)   │    │  (5 min)     │  │
+                    │  └──────┬───────┘    └──────────────┘  │
+                    │         │                               │
+                    │         ▼                               │
+                    │  ┌──────────────┐    ┌──────────────┐  │
+                    │  │  REST API    │    │   Web UI     │  │
+                    │  │  /api/*      │    │  (React)     │  │
+                    │  │    :8081     │    │    :8081     │  │
+                    │  └──────────────┘    └──────────────┘  │
+                    └─────────────────────────────────────────┘</code></pre>
+
+    <h2 id="key-design-decisions">Key Design Decisions</h2>
+    <ul>
+      <li><strong>SQLite with WAL mode</strong> -- high write throughput with concurrent reads. WAL (Write-Ahead Logging) allows the proxy to write captured requests while the API serves queries simultaneously without locking.</li>
+      <li><strong>Batched writes</strong> -- requests are queued in memory and flushed every 100ms to reduce I/O. This avoids a disk write per request during heavy traffic.</li>
+      <li><strong>Event batching</strong> -- SSE events are buffered for 100ms before flushing to connected clients. This prevents overwhelming the web UI during bursts of traffic.</li>
+      <li><strong>Response decompression</strong> -- gzip, deflate, and brotli responses are automatically decompressed before storage, so bodies are always readable.</li>
+      <li><strong>Body truncation</strong> -- configurable max body size prevents storage bloat. A <code>truncated</code> flag is set on affected records so you know when data was clipped.</li>
+      <li><strong>Per-domain cert caching</strong> -- an LRU cache avoids regenerating SSL certificates for frequently accessed domains. Default capacity is 500 entries.</li>
+    </ul>
+
+    <h2 id="data-storage">Data Storage</h2>
+    <p>
+      All data is stored in <code>~/.roxyproxy/data.db</code> (SQLite). The <code>requests</code> table
+      has indexes on <code>timestamp</code>, <code>host</code>, <code>status</code>, <code>path</code>,
+      and <code>content_type</code> for fast querying.
+    </p>
+    <p>
+      Request and response bodies are stored as binary blobs. In the API and SSE stream,
+      they are base64-encoded.
+    </p>
+
+    <h2 id="file-paths">File Paths</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Path</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>~/.roxyproxy/data.db</code></td>
+          <td>SQLite database</td>
+        </tr>
+        <tr>
+          <td><code>~/.roxyproxy/config.json</code></td>
+          <td>Configuration file (optional)</td>
+        </tr>
+        <tr>
+          <td><code>~/.roxyproxy/ca/ca.crt</code></td>
+          <td>Root CA certificate</td>
+        </tr>
+        <tr>
+          <td><code>~/.roxyproxy/ca/ca.key</code></td>
+          <td>Root CA private key</td>
+        </tr>
+        <tr>
+          <td><code>~/.roxyproxy/pid</code></td>
+          <td>Process ID file</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 id="project-structure">Project Structure</h2>
+    <pre><code>src/
+├── cli/                # CLI entry point, commands, interactive mode
+│   ├── index.ts        # Command registration (Commander.js)
+│   ├── interactive.tsx  # Interactive terminal menu (Ink/React)
+│   ├── tail-ui.tsx     # Real-time tail TUI (Ink/React)
+│   ├── format.ts       # Table/JSON output formatting
+│   ├── commands/       # Individual CLI commands
+│   └── system-proxy.ts # macOS system proxy & CA management
+├── server/             # Proxy server, API, SSL, events
+│   ├── index.ts        # RoxyProxyServer orchestrator
+│   ├── proxy.ts        # HTTP/HTTPS intercepting proxy
+│   ├── api.ts          # Express REST API + SSE
+│   ├── ssl.ts          # CA generation & per-domain cert caching
+│   ├── events.ts       # Pub/sub event manager
+│   └── config.ts       # Config loading and merging
+├── storage/            # Database and cleanup
+│   ├── db.ts           # SQLite operations (better-sqlite3)
+│   └── cleanup.ts      # Auto-cleanup job
+├── shared/             # Shared TypeScript types
+│   └── types.ts        # Config, RequestRecord, RequestFilter
+└── ui/                 # React web UI (Vite)
+    ├── App.tsx          # Main app component
+    ├── api.ts           # API client + SSE hook
+    └── components/      # UI components</code></pre>
+
+    <h2 id="related">Related</h2>
+    <ul>
+      <li><a href={`${base}docs/api`}>REST API</a> - Query captured traffic programmatically</li>
+      <li><a href={`${base}docs/configuration`}>Configuration</a> - Config file, storage limits, and auto-cleanup</li>
+      <li><a href={`${base}docs/cli`}>CLI Reference</a> - All commands, flags, and output formats</li>
+    </ul>
+  </div>
+</DocsLayout>
+
+<style>
+  .prose-custom h2 {
+    color: var(--color-text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose-custom p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+  .prose-custom pre {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+  .prose-custom pre.diagram {
+    font-size: 0.6875rem;
+    line-height: 1.4;
+  }
+  .prose-custom code:not(pre code) {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  .prose-custom ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .prose-custom li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+  .prose-custom em {
+    color: var(--color-accent);
+    font-style: normal;
+  }
+  .prose-custom strong {
+    color: var(--color-text-primary);
+  }
+  .prose-custom table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+  .prose-custom th {
+    text-align: left;
+    color: var(--color-text-primary);
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 2px solid var(--color-border);
+  }
+  .prose-custom td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+  .prose-custom a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-custom a:hover {
+    color: var(--color-text-primary);
+  }
+</style>

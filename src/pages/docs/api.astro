@@ -1,0 +1,216 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+
+const base = import.meta.env.BASE_URL;
+
+const replayExample = `curl -X POST http://127.0.0.1:8081/api/replay \\
+  -H "Content-Type: application/json" \\
+  -d '{"id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"}'`;
+
+const requestsResponse = `{
+  "data": [
+    {
+      "id": "...",
+      "timestamp": 1700000000000,
+      "method": "GET",
+      ...
+    }
+  ],
+  "total": 142,
+  "limit": 100,
+  "offset": 0
+}`;
+
+const statusResponse = `{
+  "running": true,
+  "proxyPort": 8080,
+  "requestCount": 142,
+  "dbSizeBytes": 3358720
+}`;
+---
+
+<DocsLayout title="REST API Reference" description="RoxyProxy REST API reference. Query captured HTTP traffic, replay requests, manage the proxy, and stream real-time events via SSE. Programmatic access for AI agents and automation." headings={[
+  { id: "get-api-requests", text: "GET /api/requests", depth: 2 },
+  { id: "get-api-requests-id", text: "GET /api/requests/:id", depth: 2 },
+  { id: "delete-api-requests", text: "DELETE /api/requests", depth: 2 },
+  { id: "get-api-status", text: "GET /api/status", depth: 2 },
+  { id: "get-api-ca-crt", text: "GET /api/ca.crt", depth: 2 },
+  { id: "post-api-proxy-start", text: "POST /api/proxy/start", depth: 2 },
+  { id: "post-api-proxy-stop", text: "POST /api/proxy/stop", depth: 2 },
+  { id: "post-api-replay", text: "POST /api/replay", depth: 2 },
+  { id: "get-api-events", text: "GET /api/events", depth: 2 },
+  { id: "post-api-shutdown", text: "POST /api/shutdown", depth: 2 },
+  { id: "related", text: "Related", depth: 2 },
+]}>
+  <div class="prose-custom">
+    <p>
+      The API is available at <code>http://127.0.0.1:8081/api</code> when the proxy is running.
+      All endpoints are served from the same port as the web UI.
+    </p>
+
+    <h2 id="get-api-requests">GET /api/requests</h2>
+    <p>Query captured requests. Returns paginated results.</p>
+    <p>Query parameters match the CLI <code>requests</code> command:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>host</code></td><td>Filter by hostname (substring match)</td></tr>
+        <tr><td><code>status</code></td><td>Filter by HTTP status code</td></tr>
+        <tr><td><code>method</code></td><td>Filter by HTTP method</td></tr>
+        <tr><td><code>content_type</code></td><td>Filter by content type</td></tr>
+        <tr><td><code>search</code></td><td>Search URLs (substring match)</td></tr>
+        <tr><td><code>since</code></td><td>After this time (Unix ms or ISO date)</td></tr>
+        <tr><td><code>until</code></td><td>Before this time (Unix ms or ISO date)</td></tr>
+        <tr><td><code>limit</code></td><td>Maximum number of results (default: 100)</td></tr>
+        <tr><td><code>offset</code></td><td>Pagination offset</td></tr>
+      </tbody>
+    </table>
+
+    <pre><code># All requests
+curl http://127.0.0.1:8081/api/requests
+
+# Filtered
+curl "http://127.0.0.1:8081/api/requests?host=example.com&status=200&limit=50"</code></pre>
+
+    <p>Response:</p>
+    <pre><code>{requestsResponse}</code></pre>
+
+    <h2 id="get-api-requests-id">GET /api/requests/:id</h2>
+    <p>Get full details for a single request, including headers and base64-encoded bodies.</p>
+    <pre><code>curl http://127.0.0.1:8081/api/requests/a1b2c3d4-e5f6-7890-abcd-ef1234567890</code></pre>
+
+    <h2 id="delete-api-requests">DELETE /api/requests</h2>
+    <p>Delete all captured traffic.</p>
+    <pre><code>curl -X DELETE http://127.0.0.1:8081/api/requests</code></pre>
+
+    <h2 id="get-api-status">GET /api/status</h2>
+    <p>Get proxy status.</p>
+    <pre><code>curl http://127.0.0.1:8081/api/status</code></pre>
+    <p>Response:</p>
+    <pre><code>{statusResponse}</code></pre>
+
+    <h2 id="get-api-ca-crt">GET /api/ca.crt</h2>
+    <p>
+      Download the RoxyProxy CA certificate. Useful for installing on mobile devices --
+      open this URL in the device's browser to trigger a certificate install prompt.
+    </p>
+    <pre><code>curl -O http://127.0.0.1:8081/api/ca.crt</code></pre>
+
+    <h2 id="post-api-proxy-start">POST /api/proxy/start</h2>
+    <p>Start the proxy server.</p>
+    <pre><code>curl -X POST http://127.0.0.1:8081/api/proxy/start</code></pre>
+
+    <h2 id="post-api-proxy-stop">POST /api/proxy/stop</h2>
+    <p>Stop the proxy server. The API remains available after stopping the proxy.</p>
+    <pre><code>curl -X POST http://127.0.0.1:8081/api/proxy/stop</code></pre>
+
+    <h2 id="post-api-replay">POST /api/replay</h2>
+    <p>Replay a previously captured request.</p>
+    <pre><code>{replayExample}</code></pre>
+
+    <h2 id="get-api-events">GET /api/events</h2>
+    <p>Server-Sent Events stream for real-time updates.</p>
+    <pre><code>curl -N http://127.0.0.1:8081/api/events</code></pre>
+    <p>Events are named:</p>
+    <ul>
+      <li><code>event: request</code> -- new captured request (data is the request record as JSON)</li>
+      <li><code>event: status</code> -- proxy state change (data includes running state and proxy port)</li>
+    </ul>
+
+    <h2 id="post-api-shutdown">POST /api/shutdown</h2>
+    <p>Shut down the entire process (proxy + API + web UI).</p>
+    <pre><code>curl -X POST http://127.0.0.1:8081/api/shutdown</code></pre>
+
+    <h2 id="related">Related</h2>
+    <ul>
+      <li><a href={`${base}docs/cli`}>CLI Reference</a> - CLI equivalent of every API endpoint</li>
+      <li><a href={`${base}docs/architecture`}>Architecture</a> - How the API fits into the system</li>
+      <li><a href={`${base}docs/web-ui`}>Web UI</a> - Visual interface powered by this API</li>
+      <li><a href={`${base}docs/https`}>HTTPS Interception</a> - CA certificate details for the /api/ca.crt endpoint</li>
+      <li><a href={`${base}docs/agent-plugin`}>AI Agent Plugin</a> - Programmatic access to traffic for AI agents</li>
+      <li><a href={`${base}docs/recipes/ios-capture`}>Capture iOS Traffic</a> - Mobile CA certificate installation via /api/ca.crt</li>
+    </ul>
+  </div>
+</DocsLayout>
+
+<style>
+  .prose-custom h2 {
+    color: var(--color-text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose-custom p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+  .prose-custom pre {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+  .prose-custom code:not(pre code) {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  .prose-custom ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .prose-custom li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+  .prose-custom em {
+    color: var(--color-accent);
+    font-style: normal;
+  }
+  .prose-custom strong {
+    color: var(--color-text-primary);
+  }
+  .prose-custom table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+  .prose-custom th {
+    text-align: left;
+    color: var(--color-text-primary);
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 2px solid var(--color-border);
+  }
+  .prose-custom td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+  .prose-custom a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-custom a:hover {
+    color: var(--color-text-primary);
+  }
+</style>

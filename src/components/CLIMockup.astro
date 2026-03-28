@@ -1,0 +1,38 @@
+---
+// CLI output mockup showing agent-friendly structured output
+---
+
+<div class="rounded-lg border border-[#333] overflow-hidden bg-[#1a1a1a] text-[11px] font-mono">
+  <!-- Terminal title bar -->
+  <div class="flex items-center gap-2 px-3 py-2 bg-[#111] border-b border-[#222]">
+    <span class="w-2.5 h-2.5 rounded-full bg-[#ff5f57]"></span>
+    <span class="w-2.5 h-2.5 rounded-full bg-[#febc2e]"></span>
+    <span class="w-2.5 h-2.5 rounded-full bg-[#28c840]"></span>
+    <span class="ml-2 text-[10px] text-[#666]">Terminal</span>
+  </div>
+
+  <!-- Terminal content -->
+  <div class="p-3 leading-relaxed" style="height: 280px; overflow: hidden;">
+    <div class="whitespace-pre text-[#666]"># AI agent queries captured traffic</div>
+    <div class="whitespace-pre"><span class="text-accent">$</span> <span class="text-[#ccc]">roxyproxy requests --status 422 --format agent</span></div>
+    <div class="whitespace-pre text-[#ccc]">[</div>
+    <div class="whitespace-pre text-[#ccc]">  {"{"}</div>
+    <div class="whitespace-pre text-[#ccc]">    "id": <span class="text-blue-400">1847</span>,</div>
+    <div class="whitespace-pre text-[#ccc]">    "method": <span class="text-accent">"POST"</span>,</div>
+    <div class="whitespace-pre text-[#ccc]">    "url": <span class="text-accent">"/v2/orders"</span>,</div>
+    <div class="whitespace-pre text-[#ccc]">    "status": <span class="text-amber-400">422</span>,</div>
+    <div class="whitespace-pre text-[#ccc]">    "request_body": {"{"}</div>
+    <div class="whitespace-pre text-[#ccc]">      "quantity": <span class="text-red-400">0</span>,</div>
+    <div class="whitespace-pre text-[#ccc]">      "product_id": <span class="text-blue-400">42</span></div>
+    <div class="whitespace-pre text-[#ccc]">    {"}"},</div>
+    <div class="whitespace-pre text-[#ccc]">    "response_body": {"{"}</div>
+    <div class="whitespace-pre text-[#ccc]">      "error": <span class="text-amber-400">"validation_failed"</span>,</div>
+    <div class="whitespace-pre text-[#ccc]">      "field": <span class="text-amber-400">"quantity"</span></div>
+    <div class="whitespace-pre text-[#ccc]">    {"}"}</div>
+    <div class="whitespace-pre text-[#ccc]">  {"}"}</div>
+    <div class="whitespace-pre text-[#ccc]">]</div>
+    <div class="whitespace-pre mt-1 text-[#666]"># Agent fixes the code, replays to verify</div>
+    <div class="whitespace-pre"><span class="text-accent">$</span> <span class="text-[#ccc]">roxyproxy replay 1847</span></div>
+    <div class="whitespace-pre text-amber-400">POST /v2/orders → <span class="text-accent">200 OK ✓</span></div>
+  </div>
+</div>

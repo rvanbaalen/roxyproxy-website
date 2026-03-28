@@ -1,0 +1,118 @@
+---
+import Search from "astro-pagefind/components/Search";
+---
+
+<!-- Search modal backdrop -->
+<div id="search-backdrop" class="hidden fixed inset-0 bg-black/60 z-50"></div>
+
+<!-- Search modal -->
+<div id="search-modal" class="hidden fixed inset-0 z-50 flex items-start justify-center pt-[15vh]">
+  <div class="w-full max-w-lg mx-4 bg-bg-secondary border border-border rounded-xl shadow-2xl shadow-black/50 overflow-hidden p-4">
+    <Search
+      id="pagefind-search"
+      uiOptions={{
+        showSubResults: true,
+        showImages: false,
+        resetStyles: false,
+      }}
+    />
+  </div>
+</div>
+
+<style is:global>
+  /* Pagefind dark theme overrides */
+  .pagefind-ui {
+    --pagefind-ui-scale: 0.9;
+    --pagefind-ui-primary: #22c55e;
+    --pagefind-ui-text: #fafafa;
+    --pagefind-ui-background: #1a1a1a;
+    --pagefind-ui-border: #333;
+    --pagefind-ui-tag: #2a2a2a;
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 8px;
+    --pagefind-ui-font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+
+  .pagefind-ui .pagefind-ui__search-input {
+    font-size: 16px !important;
+    padding: 12px 16px 12px 44px !important;
+    color: #fafafa !important;
+    background: #0a0a0a !important;
+    width: 100% !important;
+  }
+
+  .pagefind-ui .pagefind-ui__search-clear {
+    color: #666 !important;
+  }
+
+  .pagefind-ui .pagefind-ui__result-link {
+    color: #22c55e !important;
+  }
+
+  .pagefind-ui .pagefind-ui__result-excerpt {
+    color: #a0a0a0 !important;
+  }
+
+  .pagefind-ui .pagefind-ui__result {
+    border-top-color: #333 !important;
+  }
+
+  .pagefind-ui .pagefind-ui__message {
+    color: #666 !important;
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    var modal = document.getElementById("search-modal");
+    var backdrop = document.getElementById("search-backdrop");
+
+    function openSearch() {
+      if (!modal || !backdrop) return;
+      modal.classList.remove("hidden");
+      backdrop.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+
+      // Focus the search input
+      setTimeout(function() {
+        var input = modal.querySelector("input");
+        if (input) input.focus();
+      }, 100);
+
+      // PostHog custom event
+      if (window.posthog) {
+        window.posthog.capture("docs_search_used");
+      }
+    }
+
+    function closeSearch() {
+      if (!modal || !backdrop) return;
+      modal.classList.add("hidden");
+      backdrop.classList.add("hidden");
+      document.body.style.overflow = "";
+    }
+
+    // Cmd+K / Ctrl+K shortcut
+    document.addEventListener("keydown", function(e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        var isOpen = !modal.classList.contains("hidden");
+        isOpen ? closeSearch() : openSearch();
+      }
+      if (e.key === "Escape" && !modal.classList.contains("hidden")) {
+        closeSearch();
+      }
+    });
+
+    // Backdrop click closes
+    backdrop.addEventListener("click", closeSearch);
+
+    // Search trigger buttons
+    document.querySelectorAll("[data-search-trigger]").forEach(function(btn) {
+      btn.addEventListener("click", function(e) {
+        e.preventDefault();
+        openSearch();
+      });
+    });
+  })();
+</script>

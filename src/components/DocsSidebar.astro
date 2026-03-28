@@ -1,0 +1,95 @@
+---
+import { docsNav } from "../docs-nav";
+
+const base = import.meta.env.BASE_URL;
+const currentPath = Astro.url.pathname;
+---
+
+<!-- Mobile hamburger button -->
+<button
+  id="sidebar-toggle"
+  class="lg:hidden fixed top-4 left-4 z-50 p-2 bg-bg-secondary border border-border rounded-md text-text-secondary hover:text-text-primary transition-colors"
+  aria-label="Toggle navigation"
+  aria-expanded="false"
+  aria-controls="docs-sidebar"
+>
+  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+</button>
+
+<!-- Backdrop overlay for mobile -->
+<div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/50 z-30 lg:hidden"></div>
+
+<!-- Sidebar -->
+<aside
+  id="docs-sidebar"
+  class="fixed top-0 left-0 h-full w-64 bg-bg-primary border-r border-border z-40
+         -translate-x-full transition-transform duration-200 overflow-y-auto
+         lg:relative lg:translate-x-0 lg:shrink-0 lg:h-auto lg:top-auto lg:left-auto"
+  role="navigation"
+  aria-label="Documentation navigation"
+>
+  <div class="pt-16 lg:pt-6 pb-6">
+    {docsNav.map((group) => (
+      <div class="mb-4">
+        <div class="px-4 py-1.5 text-[11px] uppercase tracking-widest text-text-muted font-medium">
+          {group.group}
+        </div>
+        {group.items.map((item) => {
+          const href = `${base}${item.path.replace(/^\//, '')}`;
+          const isActive = currentPath.endsWith(item.path) || currentPath.endsWith(item.path.slice(0, -1));
+          return (
+            <a
+              href={href}
+              class:list={[
+                "block px-4 py-1.5 text-sm transition-colors",
+                isActive
+                  ? "text-accent bg-accent/[0.08] border-l-2 border-accent pl-[14px]"
+                  : "text-text-secondary hover:text-text-primary pl-4",
+              ]}
+            >
+              {item.title}
+            </a>
+          );
+        })}
+      </div>
+    ))}
+  </div>
+</aside>
+
+<script is:inline>
+  const toggle = document.getElementById('sidebar-toggle');
+  const sidebar = document.getElementById('docs-sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+
+  function openSidebar() {
+    sidebar.classList.remove('-translate-x-full');
+    backdrop.classList.remove('hidden');
+    toggle.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeSidebar() {
+    sidebar.classList.add('-translate-x-full');
+    backdrop.classList.add('hidden');
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  toggle.addEventListener('click', () => {
+    const isOpen = !sidebar.classList.contains('-translate-x-full');
+    isOpen ? closeSidebar() : openSidebar();
+  });
+
+  backdrop.addEventListener('click', closeSidebar);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeSidebar();
+  });
+
+  // Close sidebar when a link is clicked (mobile)
+  sidebar.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth < 1024) closeSidebar();
+    });
+  });
+</script>

@@ -1,0 +1,151 @@
+---
+import DocsLayout from "../../../layouts/DocsLayout.astro";
+
+const base = import.meta.env.BASE_URL;
+---
+
+<DocsLayout title="Capture All Traffic from iOS App" description="Step-by-step guide to capture and inspect all HTTP and HTTPS traffic from your iOS app using RoxyProxy. Configure your device, install the CA certificate, and inspect API requests." headings={[
+  { id: "scenario", text: "Scenario", depth: 2 },
+  { id: "1-start-roxyproxy-on-your-mac", text: "1. Start RoxyProxy on Your Mac", depth: 2 },
+  { id: "2-configure-ios-proxy-settings", text: "2. Configure iOS Proxy Settings", depth: 2 },
+  { id: "3-trust-the-ca-for-https", text: "3. Trust the CA for HTTPS", depth: 2 },
+  { id: "4-capture-and-filter-traffic", text: "4. Capture and Filter Traffic", depth: 2 },
+  { id: "5-cleanup", text: "5. Cleanup", depth: 2 },
+  { id: "with-your-ai-agent", text: "With Your AI Agent", depth: 2 },
+  { id: "related", text: "Related", depth: 2 },
+]}>
+  <div class="prose-custom">
+    <h2 id="scenario">Scenario</h2>
+    <p>
+      You need to inspect what your iOS app is sending over the network.
+      RoxyProxy runs on your Mac and your iPhone routes traffic through it over your local Wi-Fi network.
+    </p>
+
+    <h2 id="1-start-roxyproxy-on-your-mac">1. Start RoxyProxy on Your Mac</h2>
+    <pre><code>roxyproxy start</code></pre>
+    <p>
+      Note the network address from the startup output. It will look something like
+      <code>your-mac.local</code> or a local IP such as <code>192.168.1.42</code>.
+      The proxy listens on port <strong>8080</strong> and the web UI on port <strong>8081</strong>.
+    </p>
+
+    <h2 id="2-configure-ios-proxy-settings">2. Configure iOS Proxy Settings</h2>
+    <p>On your iPhone:</p>
+    <ul>
+      <li>Open <strong>Settings &gt; Wi-Fi</strong></li>
+      <li>Tap the <strong>(i)</strong> next to your connected network</li>
+      <li>Scroll down to <strong>Configure Proxy</strong> and select <strong>Manual</strong></li>
+      <li>Set <strong>Server</strong> to <code>your-mac.local</code> (or the IP address)</li>
+      <li>Set <strong>Port</strong> to <code>8080</code></li>
+      <li>Tap <strong>Save</strong></li>
+    </ul>
+
+    <h2 id="3-trust-the-ca-for-https">3. Trust the CA for HTTPS</h2>
+    <p>To decrypt HTTPS traffic, install the RoxyProxy CA certificate on your device:</p>
+    <ul>
+      <li>Open Safari on your iPhone and visit <code>http://your-mac.local:8081/api/ca.crt</code></li>
+      <li>Safari will prompt you to install the configuration profile &mdash; tap <strong>Allow</strong></li>
+      <li>Go to <strong>Settings &gt; General &gt; VPN &amp; Device Management</strong> and install the downloaded profile</li>
+      <li>Then go to <strong>Settings &gt; General &gt; About &gt; Certificate Trust Settings</strong></li>
+      <li>Enable full trust for the RoxyProxy CA certificate</li>
+    </ul>
+
+    <h2 id="4-capture-and-filter-traffic">4. Capture and Filter Traffic</h2>
+    <p>Back on your Mac, tail the live traffic stream:</p>
+    <pre><code>roxyproxy requests --tail</code></pre>
+    <p>
+      Open your iOS app and use it normally. All HTTP and HTTPS requests will appear in the TUI in real time.
+      Use filters to narrow down to what matters:
+    </p>
+    <pre><code># Filter to your API host
+roxyproxy requests --tail --host api.yourapp.com
+
+# Filter to failed requests only
+roxyproxy requests --tail --failed</code></pre>
+
+    <h2 id="5-cleanup">5. Cleanup</h2>
+    <p>When you are done, remove the proxy configuration and CA profile from your device:</p>
+    <ul>
+      <li>Go to <strong>Settings &gt; Wi-Fi</strong>, tap your network, set <strong>Configure Proxy</strong> back to <strong>Off</strong></li>
+      <li>Go to <strong>Settings &gt; General &gt; VPN &amp; Device Management</strong> and remove the RoxyProxy profile</li>
+      <li>Go to <strong>Settings &gt; General &gt; About &gt; Certificate Trust Settings</strong> and disable trust for the RoxyProxy CA</li>
+    </ul>
+
+    <h2 id="with-your-ai-agent">With Your AI Agent</h2>
+    <p>Your <a href={`${base}docs/agent-plugin/`}>AI Agent Plugin</a> can walk you through the setup and help you filter the captured traffic:</p>
+    <pre><code>You: "Help me capture HTTPS traffic from my iOS app"
+
+Your agent walks you through the setup steps and helps filter
+the captured traffic once requests start flowing.</code></pre>
+    <p>
+      Once traffic is flowing, ask your agent to inspect specific requests or diagnose issues directly from the captured data.
+    </p>
+
+    <h2 id="related">Related</h2>
+    <ul>
+      <li><a href={`${base}docs/https`}>HTTPS Interception</a> - Full CA setup details and certificate reference</li>
+      <li><a href={`${base}docs/getting-started`}>Getting Started</a> - Install and capture your first request</li>
+      <li><a href={`${base}docs/recipes/debug-webhook`}>Debug a Failing Webhook</a> - Inspect webhook traffic from Stripe or Twilio</li>
+      <li><a href={`${base}docs/agent-plugin`}>AI Agent Plugin</a> - AI-assisted HTTP debugging in your terminal</li>
+      <li><a href={`${base}docs/web-ui`}>Web UI</a> - Visual interface for inspecting captured traffic</li>
+    </ul>
+  </div>
+</DocsLayout>
+
+<style>
+  .prose-custom h2 {
+    color: var(--color-text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose-custom p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+  .prose-custom pre {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+  .prose-custom code:not(pre code) {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  .prose-custom ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .prose-custom li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+  .prose-custom em {
+    color: var(--color-accent);
+    font-style: normal;
+  }
+  .prose-custom strong {
+    color: var(--color-text-primary);
+  }
+  .prose-custom a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-custom a:hover {
+    color: var(--color-text-primary);
+  }
+</style>

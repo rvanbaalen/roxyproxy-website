@@ -1,0 +1,41 @@
+---
+
+---
+
+<div class="group relative inline-flex items-center gap-3 bg-bg-secondary border border-border rounded-lg px-5 py-3 font-mono text-sm md:text-base">
+  <span class="text-text-muted select-none">$</span>
+  <code class="text-accent">npx @rvanbaalen/roxyproxy</code>
+  <button
+    id="copy-btn"
+    class="text-text-muted hover:text-text-primary transition-colors ml-2"
+    aria-label="Copy install command"
+    title="Copy to clipboard"
+  >
+    <svg id="copy-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+    </svg>
+    <svg id="check-icon" class="w-4 h-4 text-accent hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+  </button>
+</div>
+
+<script>
+  const btn = document.getElementById("copy-btn");
+  const copyIcon = document.getElementById("copy-icon");
+  const checkIcon = document.getElementById("check-icon");
+  btn?.addEventListener("click", () => {
+    navigator.clipboard.writeText("npx @rvanbaalen/roxyproxy");
+    copyIcon?.classList.add("hidden");
+    checkIcon?.classList.remove("hidden");
+    setTimeout(() => {
+      copyIcon?.classList.remove("hidden");
+      checkIcon?.classList.add("hidden");
+    }, 2000);
+    // PostHog custom event
+    if (typeof window !== "undefined" && window.posthog) {
+      window.posthog.capture("install_command_copied");
+    }
+  });
+</script>

@@ -1,0 +1,123 @@
+---
+import DocsLayout from "../../../layouts/DocsLayout.astro";
+
+const base = import.meta.env.BASE_URL;
+---
+
+<DocsLayout title="Find Why My API Returns 422" description="Find why your API returns 422 Unprocessable Entity by capturing and inspecting the request with RoxyProxy. Step-by-step guide for manual debugging and AI-assisted fixes." headings={[
+  { id: "scenario", text: "Scenario", depth: 2 },
+  { id: "steps", text: "Steps", depth: 2 },
+  { id: "with-your-ai-agent", text: "With Your AI Agent", depth: 2 },
+  { id: "related", text: "Related", depth: 2 },
+]}>
+  <div class="prose-custom">
+    <h2 id="scenario">Scenario</h2>
+    <p>
+      Your API call is returning <code>422 Unprocessable Entity</code> but you cannot figure out why.
+      The error message from the server is buried in the response body, and your client code only shows the status code.
+    </p>
+
+    <h2 id="steps">Steps</h2>
+
+    <p>Start the proxy:</p>
+    <pre><code>roxyproxy start</code></pre>
+
+    <p>If the target API uses HTTPS, <a href={`${base}docs/https/`}>trust the CA certificate</a> so RoxyProxy can decrypt the traffic:</p>
+    <pre><code>roxyproxy trust-ca</code></pre>
+
+    <p>Make the API call through the proxy:</p>
+    <pre><code>curl -x http://127.0.0.1:8080 https://api.example.com/endpoint</code></pre>
+
+    <p>Query for the failed request:</p>
+    <pre><code>roxyproxy requests --status 422 --format agent</code></pre>
+    <p>
+      The <code>--status 422</code> flag filters to only that status code.
+      The <code>--format agent</code> output includes the full response body, so you can read the validation error directly.
+    </p>
+
+    <p>Common causes you will find in the response body:</p>
+    <ul>
+      <li>Missing required field</li>
+      <li>Invalid field type (string instead of number)</li>
+      <li>Value out of allowed range or enum</li>
+      <li>Duplicate unique constraint violation</li>
+    </ul>
+
+    <h2 id="with-your-ai-agent">With Your AI Agent</h2>
+    <p>With the <a href={`${base}docs/agent-plugin/`}>AI Agent Plugin</a>, describe the problem and let your agent trace it:</p>
+    <pre><code>You: "My POST to /api/users is returning 422. What's wrong?"
+
+Your agent queries RoxyProxy, finds the request, reads the validation
+error in the response body, and fixes the request payload.</code></pre>
+    <p>
+      Your agent sees both what you sent and what the server rejected, then updates your code to match the expected schema.
+    </p>
+
+    <h2 id="related">Related</h2>
+    <ul>
+      <li><a href={`${base}docs/cli`}>CLI Reference</a> - All commands, flags, and output formats</li>
+      <li><a href={`${base}docs/recipes/debug-webhook`}>Debug a Failing Webhook</a> - Inspect webhook traffic from Stripe or Twilio</li>
+      <li><a href={`${base}docs/api`}>REST API</a> - Query captured traffic programmatically</li>
+      <li><a href={`${base}docs/agent-plugin`}>AI Agent Plugin</a> - AI-assisted HTTP debugging in your terminal</li>
+      <li><a href={`${base}docs/web-ui`}>Web UI</a> - Visual interface for inspecting captured traffic</li>
+    </ul>
+  </div>
+</DocsLayout>
+
+<style>
+  .prose-custom h2 {
+    color: var(--color-text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose-custom p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+  .prose-custom pre {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+  .prose-custom code:not(pre code) {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  .prose-custom ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .prose-custom li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+  .prose-custom em {
+    color: var(--color-accent);
+    font-style: normal;
+  }
+  .prose-custom strong {
+    color: var(--color-text-primary);
+  }
+  .prose-custom a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-custom a:hover {
+    color: var(--color-text-primary);
+  }
+</style>

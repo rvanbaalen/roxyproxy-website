@@ -1,0 +1,284 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+
+const base = import.meta.env.BASE_URL;
+
+const networkCommands = `ipconfig getifaddr en0    # macOS
+hostname -I | awk '{print $1}'  # Linux`;
+---
+
+<DocsLayout title="HTTPS Interception" description="Set up HTTPS interception in RoxyProxy with local CA certificates. Includes iOS device inspection and Firefox manual trust." headings={[
+  { id: "how-it-works", text: "How It Works", depth: 2 },
+  { id: "setup", text: "Setup", depth: 2 },
+  { id: "step-1-start-the-proxy", text: "Step 1: Start the proxy", depth: 3 },
+  { id: "step-2-trust-the-ca-certificate", text: "Step 2: Trust the CA certificate", depth: 3 },
+  { id: "step-3-route-https-traffic-through-the-proxy", text: "Step 3: Route HTTPS traffic through the proxy", depth: 3 },
+  { id: "platform-specific-trust", text: "Platform-Specific Trust", depth: 2 },
+  { id: "certificate-details", text: "Certificate Details", depth: 2 },
+  { id: "ios-device-inspection", text: "iOS Device Inspection", depth: 2 },
+  { id: "cleanup", text: "Cleanup", depth: 2 },
+  { id: "related", text: "Related", depth: 2 },
+]}>
+  <div class="prose-custom">
+    <h2 id="how-it-works">How It Works</h2>
+    <p>RoxyProxy performs HTTPS interception via a local Certificate Authority (CA). Here is what happens under the hood:</p>
+    <ol>
+      <li>On first startup, RoxyProxy generates a root CA certificate and private key at <code>~/.roxyproxy/ca/</code></li>
+      <li>When a client sends a CONNECT request (HTTPS), RoxyProxy:
+        <ul>
+          <li>Accepts the tunnel</li>
+          <li>Generates a per-domain certificate signed by the CA on the fly</li>
+          <li>Terminates TLS with the client using the generated cert</li>
+          <li>Opens a separate TLS connection to the real server</li>
+          <li>Forwards traffic in both directions, capturing it along the way</li>
+        </ul>
+      </li>
+    </ol>
+
+    <h2 id="setup">Setup</h2>
+
+    <h3 id="step-1-start-the-proxy">Step 1: Start the proxy</h3>
+    <p>This generates the CA certificate if it does not already exist.</p>
+    <pre><code>roxyproxy start</code></pre>
+
+    <h3 id="step-2-trust-the-ca-certificate">Step 2: Trust the CA certificate</h3>
+    <pre><code>roxyproxy trust-ca</code></pre>
+    <p>This runs the platform-specific trust command. See the table below for details on each platform.</p>
+
+    <h3 id="step-3-route-https-traffic-through-the-proxy">Step 3: Route HTTPS traffic through the proxy</h3>
+    <pre><code># Via explicit proxy flag
+curl -x http://127.0.0.1:8080 https://api.example.com/data
+
+# Or enable system-wide proxy (macOS)
+roxyproxy proxy-on</code></pre>
+
+    <h2 id="platform-specific-trust">Platform-Specific Trust</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Platform</th>
+            <th>What happens</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>macOS</strong></td>
+            <td>Adds to System Keychain via <code>security add-trusted-cert</code> (requires sudo)</td>
+          </tr>
+          <tr>
+            <td><strong>Linux</strong></td>
+            <td>Copies to <code>/usr/local/share/ca-certificates/</code> and runs <code>update-ca-certificates</code> (requires sudo)</td>
+          </tr>
+          <tr>
+            <td><strong>Firefox</strong></td>
+            <td>Must be done manually: Settings &gt; Privacy &amp; Security &gt; Certificates &gt; View Certificates &gt; Import <code>~/.roxyproxy/ca/ca.crt</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="certificate-details">Certificate Details</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Property</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>CA location</td>
+            <td><code>~/.roxyproxy/ca/ca.crt</code> and <code>ca.key</code></td>
+          </tr>
+          <tr>
+            <td>CA validity</td>
+            <td>10 years</td>
+          </tr>
+          <tr>
+            <td>CA subject</td>
+            <td>"RoxyProxy CA"</td>
+          </tr>
+          <tr>
+            <td>Per-domain cert validity</td>
+            <td>1 year</td>
+          </tr>
+          <tr>
+            <td>Key size</td>
+            <td>2048-bit RSA</td>
+          </tr>
+          <tr>
+            <td>Signature algorithm</td>
+            <td>SHA-256</td>
+          </tr>
+          <tr>
+            <td>Domain cert cache</td>
+            <td>LRU, default 500 entries (configurable)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="ios-device-inspection">iOS Device Inspection</h2>
+    <p>RoxyProxy can inspect HTTP/HTTPS traffic from an iOS device. Your computer and iOS device must be on the same Wi-Fi network.</p>
+
+    <h3>Step 1: Start RoxyProxy on your computer</h3>
+    <pre><code>roxyproxy start</code></pre>
+
+    <h3>Step 2: Note your computer's network address</h3>
+    <p>The CLI prints a <code>Network</code> line on startup with your hostname, for example:</p>
+    <pre><code>  ● Network  http://robins-macbook.local:8081</code></pre>
+    <p>You can also find your IP manually:</p>
+    <pre><code>{networkCommands}</code></pre>
+
+    <h3>Step 3: Configure the iOS device to use the proxy</h3>
+    <ol>
+      <li>Open <strong>Settings &gt; Wi-Fi</strong></li>
+      <li>Tap the <strong>(i)</strong> icon next to your connected network</li>
+      <li>Scroll down and tap <strong>Configure Proxy</strong></li>
+      <li>Select <strong>Manual</strong></li>
+      <li>Set <strong>Server</strong> to your computer's hostname or IP (e.g. <code>robins-macbook.local</code> or <code>192.168.1.42</code>)</li>
+      <li>Set <strong>Port</strong> to <code>8080</code></li>
+      <li>Tap <strong>Save</strong></li>
+    </ol>
+    <p>HTTP traffic is now being captured. For HTTPS inspection, continue with the steps below.</p>
+
+    <h3>Step 4: Install the CA certificate on iOS</h3>
+    <p>Open Safari on your iOS device and navigate to the network address shown in the CLI or web UI:</p>
+    <pre><code>http://robins-macbook.local:8081/api/ca.crt</code></pre>
+    <p>Or use the IP directly: <code>http://192.168.1.42:8081/api/ca.crt</code></p>
+    <p>You can also open the web UI and tap the <strong>CA Cert</strong> link in the toolbar. Safari will prompt you to download a configuration profile. Tap <strong>Allow</strong>.</p>
+
+    <h3>Step 5: Install the profile</h3>
+    <ol>
+      <li>Open <strong>Settings &gt; General &gt; VPN &amp; Device Management</strong> (or <strong>Profiles &amp; Device Management</strong> on older iOS)</li>
+      <li>Tap the <strong>RoxyProxy CA</strong> profile</li>
+      <li>Tap <strong>Install</strong> and enter your passcode</li>
+    </ol>
+
+    <h3>Step 6: Enable full trust for the certificate</h3>
+    <ol>
+      <li>Open <strong>Settings &gt; General &gt; About &gt; Certificate Trust Settings</strong></li>
+      <li>Toggle <strong>Enable Full Trust</strong> for <strong>RoxyProxy CA</strong></li>
+      <li>Tap <strong>Continue</strong> on the warning dialog</li>
+    </ol>
+    <p>HTTPS traffic from the iOS device is now fully inspectable through RoxyProxy.</p>
+
+    <h3>Viewing traffic</h3>
+    <p>Open the web UI from any browser:</p>
+    <pre><code>http://&lt;your-computer-ip&gt;:8081</code></pre>
+    <p>Or use the CLI:</p>
+    <pre><code>roxyproxy requests --tail</code></pre>
+
+    <h2 id="cleanup">Cleanup</h2>
+    <p>When you are done inspecting, remove the proxy from iOS:</p>
+    <ol>
+      <li><strong>Settings &gt; Wi-Fi &gt; (i) &gt; Configure Proxy &gt; Off</strong></li>
+      <li>Optionally remove the CA profile: <strong>Settings &gt; General &gt; VPN &amp; Device Management &gt; RoxyProxy CA &gt; Remove Profile</strong></li>
+    </ol>
+    <p>On your computer, you can uninstall the CA certificate from your system trust store:</p>
+    <pre><code>roxyproxy uninstall-ca</code></pre>
+
+    <h2 id="related">Related</h2>
+    <ul>
+      <li><a href={`${base}docs/getting-started`}>Getting Started</a> - Install and capture your first request</li>
+      <li><a href={`${base}docs/cli`}>CLI Reference</a> - The trust-ca and uninstall-ca commands</li>
+      <li><a href={`${base}docs/recipes/ios-capture`}>Capture iOS Traffic</a> - Full walkthrough for iOS device inspection</li>
+    </ul>
+  </div>
+</DocsLayout>
+
+<style>
+  .prose-custom h2 {
+    color: var(--color-text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose-custom h3 {
+    color: var(--color-text-primary);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .prose-custom p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+  .prose-custom pre {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+  .prose-custom code:not(pre code) {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  .prose-custom ul, .prose-custom ol {
+    list-style: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .prose-custom ol {
+    list-style: decimal;
+  }
+  .prose-custom li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+  .prose-custom li ul {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+  }
+  .prose-custom em {
+    color: var(--color-accent);
+    font-style: normal;
+  }
+  .prose-custom strong {
+    color: var(--color-text-primary);
+  }
+  .table-wrap {
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+  .prose-custom table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+  .prose-custom th, .prose-custom td {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border);
+  }
+  .prose-custom th {
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+  .prose-custom td {
+    color: var(--color-text-secondary);
+  }
+  .prose-custom a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-custom a:hover {
+    color: var(--color-text-primary);
+  }
+</style>

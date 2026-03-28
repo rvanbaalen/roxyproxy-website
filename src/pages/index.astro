@@ -1,0 +1,264 @@
+---
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import InstallBlock from "../components/InstallBlock.astro";
+import Footer from "../components/Footer.astro";
+import TerminalReplay from "../components/TerminalReplay.tsx";
+import WebUIMockup from "../components/WebUIMockup.astro";
+import CLIMockup from "../components/CLIMockup.astro";
+
+const base = import.meta.env.BASE_URL;
+
+const capabilities = [
+  {
+    scenario: "Debugging a flaky React dashboard",
+    title: "Intercept Every Request",
+    description:
+      "Your dashboard makes 47 API calls on load. Three of them fail intermittently. RoxyProxy captures every request with full headers, body, and timing. Filter by status, method, or path to find the culprit in seconds.",
+    docsLink: "docs/cli/",
+    docsLabel: "CLI Reference",
+    lines: [
+      { type: "prompt" as const, text: "$ roxyproxy start" },
+      { type: "output" as const, text: "Proxy listening on :9229" },
+      { type: "output" as const, text: "Web UI at http://localhost:9230" },
+      { type: "output" as const, text: "" },
+      { type: "prompt" as const, text: "$ roxyproxy requests --status 500" },
+      { type: "highlight" as const, text: "POST /api/dashboard/widgets  500  422ms" },
+      { type: "highlight" as const, text: "POST /api/dashboard/widgets  500  891ms" },
+      { type: "output" as const, text: "GET  /api/user/profile       200   34ms" },
+    ],
+  },
+  {
+    scenario: "Reverse-engineering a mobile app",
+    title: "HTTPS Interception",
+    description:
+      "That iOS app doesn't have public API docs. Point your device at RoxyProxy, trust the CA, and watch every encrypted request in cleartext. See exactly what endpoints it hits, what tokens it sends, what data it returns.",
+    docsLink: "docs/https/",
+    docsLabel: "HTTPS Setup",
+    lines: [
+      { type: "prompt" as const, text: "$ roxyproxy start --https" },
+      { type: "output" as const, text: "HTTPS interception enabled" },
+      { type: "output" as const, text: "CA cert: ~/.roxyproxy/ca.pem" },
+      { type: "output" as const, text: "" },
+      { type: "prompt" as const, text: "$ roxyproxy requests --host api.example.app" },
+      { type: "output" as const, text: "GET  /v2/feed       200  Bearer eyJ..." },
+      { type: "output" as const, text: "POST /v2/analytics  201  {device_id:...}" },
+      { type: "highlight" as const, text: 'GET  /v2/premium    403  {error: "not_subscribed"}' },
+    ],
+  },
+  {
+    scenario: "Your AI agent debugs a 422 error",
+    title: "AI Agent Integration",
+    description:
+      'Tell your AI agent "the user update endpoint returns 422." It queries RoxyProxy, inspects the request body, sees the validation error, fixes your code, replays the request, and confirms the fix. You watch.',
+    docsLink: "docs/agent-plugin/",
+    docsLabel: "AI Agent Plugin",
+    lines: [
+      { type: "comment" as const, text: "# AI agent queries captured traffic" },
+      { type: "prompt" as const, text: "$ roxyproxy requests --status 422 --format agent" },
+      { type: "output" as const, text: "{" },
+      { type: "output" as const, text: '  "method": "PUT", "path": "/api/users/42",' },
+      { type: "output" as const, text: "  \"status\": 422," },
+      { type: "output" as const, text: '  "errors": [{"field": "email", "msg": "invalid"}]' },
+      { type: "output" as const, text: "}" },
+      { type: "output" as const, text: "" },
+      { type: "comment" as const, text: "# Agent fixes code, replays request" },
+      { type: "prompt" as const, text: "$ roxyproxy replay 1847" },
+      { type: "highlight" as const, text: "PUT /api/users/42  → 200 OK ✓" },
+    ],
+  },
+  {
+    scenario: "Reproducing a production bug locally",
+    title: "Request Replay",
+    description:
+      "Captured the failing request in staging. Replay it against your local server with one command. Modify headers, change the body, hit it again. Iterate until the fix works without touching the frontend.",
+    docsLink: "docs/api/",
+    docsLabel: "API Reference",
+    lines: [
+      { type: "prompt" as const, text: "$ roxyproxy request 1847 --verbose" },
+      { type: "output" as const, text: "PUT /api/users/42" },
+      { type: "output" as const, text: "Content-Type: application/json" },
+      { type: "output" as const, text: '{"email": "bad@@email", "name": "Robin"}' },
+      { type: "output" as const, text: "" },
+      { type: "prompt" as const, text: "$ roxyproxy replay 1847 --target localhost:3000" },
+      { type: "output" as const, text: "PUT /api/users/42 →" },
+      { type: "highlight" as const, text: "200 OK (12ms) ✓" },
+    ],
+  },
+];
+---
+
+<Base
+  title="RoxyProxy — See every HTTP request. Debug anything."
+  description="Free, open source HTTP/HTTPS intercepting proxy. Capture, inspect, and replay traffic. Debug web APIs, reverse-engineer mobile apps, or let your AI agent query everything."
+>
+  <Nav />
+
+  <main id="main" role="main">
+    <!-- Hero -->
+    <section class="px-6 md:px-12 pt-16 md:pt-24 pb-16 md:pb-24">
+      <div class="max-w-3xl mx-auto text-center">
+        <span class="inline-block text-xs text-accent border border-accent/30 rounded-full px-3 py-1 mb-6 font-medium">
+          Open Source · MIT License
+        </span>
+
+        <h1 class="text-text-primary text-3xl md:text-5xl xl:text-6xl font-extrabold tracking-tight leading-[1.1] mb-5">
+          See every HTTP request.<br />
+          <span class="text-accent">Debug anything.</span>
+        </h1>
+
+        <p class="text-text-secondary text-base md:text-xl leading-relaxed mb-8 max-w-2xl mx-auto">
+          Capture, inspect, and replay HTTP/HTTPS traffic. Debug web APIs, reverse-engineer mobile apps, or let your AI agent query everything.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+          <InstallBlock />
+        </div>
+
+        <div class="flex items-center justify-center gap-4">
+          <a
+            href={`${base}docs/getting-started/`}
+            class="inline-flex items-center px-5 py-2.5 bg-accent text-black font-semibold text-sm rounded-md hover:bg-accent-dim transition-colors"
+          >
+            Get Started
+          </a>
+          <a
+            href={`${base}docs/`}
+            class="inline-flex items-center px-5 py-2.5 border border-border text-text-secondary text-sm rounded-md hover:text-text-primary hover:border-text-muted transition-colors"
+          >
+            View Docs &rarr;
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Capability Timeline -->
+    <section class="relative px-6 md:px-12 py-16 md:py-24 max-w-6xl mx-auto">
+      <!-- Vertical timeline line (desktop only) -->
+      <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 -translate-x-1/2"
+           style="background: linear-gradient(to bottom, transparent, #333 5%, #22c55e 50%, #333 95%, transparent);">
+      </div>
+
+      <!-- Mobile: left-edge timeline -->
+      <div class="md:hidden absolute left-6 top-0 bottom-0 w-0.5 bg-accent/30"></div>
+
+      {capabilities.map((cap, i) => {
+        const isReversed = i % 2 === 1;
+        return (
+          <section
+            class="relative mb-20 last:mb-0"
+            aria-label={`Scenario: ${cap.scenario}`}
+          >
+            {/* Timeline node (desktop) */}
+            <div class="hidden md:block absolute left-1/2 top-6 w-4 h-4 -translate-x-1/2 rounded-full bg-accent border-[3px] border-bg-primary z-10"
+                 style="box-shadow: 0 0 12px rgba(34,197,94,0.4);">
+            </div>
+
+            {/* Timeline node (mobile) */}
+            <div class="md:hidden absolute left-[21px] top-6 w-3 h-3 rounded-full bg-accent z-10"
+                 style="box-shadow: 0 0 8px rgba(34,197,94,0.4);">
+            </div>
+
+            {/* Content: alternating layout on desktop, stacked on mobile */}
+            <div class:list={[
+              "flex flex-col md:flex-row gap-8 md:gap-12 pl-10 md:pl-0",
+              isReversed ? "md:flex-row-reverse" : "",
+            ]}>
+              {/* Text side */}
+              <div class="flex-1 pt-1">
+                <div class="text-accent text-xs uppercase tracking-[2px] mb-2 font-medium">
+                  {cap.scenario}
+                </div>
+                <h2 class="text-text-primary text-2xl md:text-3xl font-bold tracking-tight mb-3">
+                  {cap.title}
+                </h2>
+                <p class="text-text-secondary text-[15px] leading-relaxed mb-4">
+                  {cap.description}
+                </p>
+                <a
+                  href={`${base}${cap.docsLink}`}
+                  class="text-accent hover:text-accent-dim text-sm font-medium transition-colors"
+                >
+                  Read docs: {cap.docsLabel} &rarr;
+                </a>
+              </div>
+
+              {/* Terminal side */}
+              <div class="flex-1">
+                <TerminalReplay client:visible lines={cap.lines} />
+                <noscript>
+                  <div class="rounded-lg border border-[#333] overflow-hidden bg-[#1a1a1a]">
+                    <div class="flex items-center gap-2 px-4 py-2.5 bg-[#111] border-b border-[#222]">
+                      <span class="w-2.5 h-2.5 rounded-full bg-[#ff5f57]"></span>
+                      <span class="w-2.5 h-2.5 rounded-full bg-[#febc2e]"></span>
+                      <span class="w-2.5 h-2.5 rounded-full bg-[#28c840]"></span>
+                    </div>
+                    <pre class="p-4 font-mono text-[13px] leading-relaxed text-[#ccc]">{cap.lines.map(l => l.text).join('\n')}</pre>
+                  </div>
+                </noscript>
+              </div>
+            </div>
+          </section>
+        );
+      })}
+    </section>
+
+    <!-- Built for developers. Ready for AI agents. -->
+    <section class="px-6 md:px-12 py-16 md:py-24 border-t border-border">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+          <div class="text-accent text-xs uppercase tracking-[2px] mb-3 font-medium">Two interfaces, one proxy</div>
+          <h2 class="text-text-primary text-2xl md:text-3xl font-bold tracking-tight mb-3">
+            Built for developers. Ready for AI agents.
+          </h2>
+          <p class="text-text-secondary max-w-2xl mx-auto">
+            Every captured request is available through a visual web dashboard for manual inspection and a structured CLI for AI-powered debugging. Same data, your choice of interface.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-10">
+          <!-- Web Dashboard -->
+          <div>
+            <h3 class="text-text-primary font-semibold text-lg mb-2">Web Dashboard</h3>
+            <p class="text-text-secondary text-sm mb-4 leading-relaxed">
+              Real-time traffic streaming, sortable columns, host and status filters, and a detail panel showing full headers and response bodies. Grab a captured request and send it to the Repeater to edit and resend it. Proxy state syncs live between the dashboard and CLI.
+            </p>
+            <WebUIMockup />
+            <a href={`${base}docs/web-ui/`} class="text-accent hover:text-accent-dim text-sm mt-3 inline-block transition-colors">
+              Read docs: Web UI &rarr;
+            </a>
+          </div>
+
+          <!-- CLI + Agent -->
+          <div>
+            <h3 class="text-text-primary font-semibold text-lg mb-2">CLI + AI Agent Plugin</h3>
+            <p class="text-text-secondary text-sm mb-4 leading-relaxed">
+              Query captured traffic from the command line or let your AI coding agent do it. The <code class="text-accent text-xs bg-bg-secondary px-1 py-0.5 rounded">--format agent</code> flag returns structured JSON your AI can parse, diagnose, and act on without switching context.
+            </p>
+            <CLIMockup />
+            <a href={`${base}docs/agent-plugin/`} class="text-accent hover:text-accent-dim text-sm mt-3 inline-block transition-colors">
+              Read docs: AI Agent Plugin &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom CTA -->
+    <section class="px-6 md:px-12 py-16 md:py-24 border-t border-border">
+      <div class="max-w-2xl mx-auto text-center">
+        <h2 class="text-text-primary text-2xl md:text-3xl font-bold tracking-tight mb-3">
+          Start capturing traffic in 10 seconds
+        </h2>
+        <p class="text-text-secondary mb-6">
+          Free, open source, MIT licensed. Works on macOS and Linux.
+        </p>
+        <div class="flex justify-center">
+          <InstallBlock />
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Base>

@@ -1,0 +1,63 @@
+---
+import Base from "./Base.astro";
+import Nav from "../components/Nav.astro";
+import DocsSidebar from "../components/DocsSidebar.astro";
+import DocsTOC from "../components/DocsTOC.astro";
+import Footer from "../components/Footer.astro";
+import { getPrevNext } from "../docs-nav";
+
+interface Props {
+  title: string;
+  description?: string;
+  headings?: Array<{ id: string; text: string; depth: number }>;
+}
+
+const { title, description = "", headings = [] } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const currentPath = Astro.url.pathname;
+const { prev, next } = getPrevNext(currentPath);
+---
+
+<Base title={`${title} — RoxyProxy`} description={description}>
+  <Nav />
+
+  <div class="flex min-h-screen">
+    <DocsSidebar />
+
+    <main id="main" role="main" class="flex-1 min-w-0">
+      <div class="flex max-w-4xl">
+        <!-- Content area -->
+        <div class="flex-1 min-w-0 px-6 md:px-12 py-8 md:py-12">
+          <h1 class="text-text-primary text-3xl md:text-4xl font-bold tracking-tight mb-8">
+            {title}
+          </h1>
+
+          <div class="prose-custom">
+            <slot />
+          </div>
+
+          <!-- Prev / Next navigation -->
+          {(prev || next) && (
+            <div class="flex justify-between items-center mt-12 pt-6 border-t border-border text-sm">
+              {prev ? (
+                <a href={`${base}${prev.path.replace(/^\//, '')}`} class="text-accent hover:text-accent-dim transition-colors">
+                  &larr; {prev.title}
+                </a>
+              ) : <span />}
+              {next ? (
+                <a href={`${base}${next.path.replace(/^\//, '')}`} class="text-accent hover:text-accent-dim transition-colors">
+                  {next.title} &rarr;
+                </a>
+              ) : <span />}
+            </div>
+          )}
+        </div>
+
+        <!-- Right TOC -->
+        <DocsTOC headings={headings} />
+      </div>
+    </main>
+  </div>
+
+  <Footer />
+</Base>

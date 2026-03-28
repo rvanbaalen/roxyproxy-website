@@ -1,0 +1,108 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+
+const base = import.meta.env.BASE_URL;
+---
+
+<DocsLayout title="Web UI" description="RoxyProxy web dashboard for live traffic inspection. Real-time streaming, sortable columns, request detail panel, and filters." headings={[
+  { id: "features", text: "Features", depth: 2 },
+  { id: "opening-the-ui", text: "Opening the UI", depth: 2 },
+  { id: "filtering-traffic", text: "Filtering Traffic", depth: 2 },
+  { id: "repeater", text: "Repeater", depth: 2 },
+  { id: "related", text: "Related", depth: 2 },
+]}>
+  <div class="prose-custom">
+    <p>The web interface is available at <code>http://127.0.0.1:8081</code> when the proxy is running. It provides a real-time dashboard for inspecting all captured HTTP and HTTPS traffic.</p>
+
+    <h2 id="features">Features</h2>
+
+    <ul>
+      <li><strong>Live traffic stream</strong> -- requests appear in real-time via Server-Sent Events as they pass through the proxy</li>
+      <li><strong>Historical traffic</strong> -- previously captured requests load automatically when you open the page</li>
+      <li><strong>Sortable columns</strong> -- click any column header to sort by Time, Method, Status, Host, Path, Duration, or Size</li>
+      <li><strong>Resizable columns</strong> -- drag column borders to adjust widths to your preference</li>
+      <li><strong>Request detail panel</strong> -- click any row to inspect full request and response headers and body in a resizable side panel</li>
+      <li><strong>Filters</strong> -- narrow results by host, status code, HTTP method, or URL search</li>
+      <li><strong>Proxy controls</strong> -- start and stop the proxy and clear all captured traffic directly from the UI</li>
+      <li><strong>Live sync</strong> -- proxy start/stop state is synchronized between the web UI and CLI in real-time. Stop the proxy from the dashboard and the CLI updates within a second, and vice versa</li>
+    </ul>
+
+    <h2 id="opening-the-ui">Opening the UI</h2>
+    <p>Start the proxy and open the dashboard:</p>
+    <pre><code>roxyproxy start
+open http://127.0.0.1:8081</code></pre>
+    <p>Or use the interactive menu, which has an <strong>Open web UI</strong> option that auto-starts the proxy if needed:</p>
+    <pre><code>roxyproxy</code></pre>
+
+    <h2 id="filtering-traffic">Filtering Traffic</h2>
+    <p>The filter bar is always accessible at the top of the traffic table. Type in any filter field to narrow results instantly. You can combine filters -- for example, filter by host <code>api.example.com</code> and status <code>500</code> to find only server errors for that API.</p>
+
+    <h2 id="repeater">Repeater</h2>
+    <p>The Repeater feature lets you take a captured request, edit it, and resend it -- useful for debugging APIs or reproducing edge cases. Select a request from the traffic table, modify the method, URL, headers, or body in a tabbed editor, then send it through the proxy and inspect the response. This feature is currently in progress.</p>
+
+    <h2 id="related">Related</h2>
+    <ul>
+      <li><a href={`${base}docs/getting-started`}>Getting Started</a> - Install and capture your first request</li>
+      <li><a href={`${base}docs/api`}>REST API</a> - The API powering the web dashboard</li>
+      <li><a href={`${base}docs/https`}>HTTPS Interception</a> - Capture HTTPS traffic in the UI</li>
+    </ul>
+  </div>
+</DocsLayout>
+
+<style>
+  .prose-custom h2 {
+    color: var(--color-text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose-custom p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+  .prose-custom pre {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+  .prose-custom code:not(pre code) {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  .prose-custom ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .prose-custom li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+  .prose-custom em {
+    color: var(--color-accent);
+    font-style: normal;
+  }
+  .prose-custom strong {
+    color: var(--color-text-primary);
+  }
+  .prose-custom a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-custom a:hover {
+    color: var(--color-text-primary);
+  }
+</style>

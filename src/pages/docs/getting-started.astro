@@ -1,0 +1,143 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+
+const base = import.meta.env.BASE_URL;
+---
+
+<DocsLayout title="Getting Started" description="Install RoxyProxy in 10 seconds and capture your first HTTP request. Quick setup guide for the open source HTTP proxy with HTTPS interception and AI agent integration." headings={[
+  { id: "installation", text: "Installation", depth: 2 },
+  { id: "quick-start", text: "Quick Start", depth: 2 },
+  { id: "manual-setup", text: "Manual Setup", depth: 2 },
+  { id: "https-interception", text: "HTTPS Interception", depth: 2 },
+  { id: "ai-assisted-debugging", text: "AI-Assisted Debugging", depth: 2 },
+  { id: "platform-support", text: "Platform Support", depth: 2 },
+  { id: "next-steps", text: "Next Steps", depth: 2 },
+]}>
+  <div class="prose-custom">
+    <h2 id="installation">Installation</h2>
+    <p>Run directly without installing:</p>
+    <pre><code>npx @rvanbaalen/roxyproxy</code></pre>
+
+    <p>Or install globally:</p>
+    <pre><code>npm install -g @rvanbaalen/roxyproxy
+roxyproxy</code></pre>
+
+    <h2 id="quick-start">Quick Start</h2>
+    <p>The fastest way to capture traffic:</p>
+    <pre><code># One command: starts proxy, enables system proxy, opens interactive TUI
+roxyproxy requests --tail
+
+# Filter for a specific host
+roxyproxy requests --host api.example.com --tail</code></pre>
+    <p>
+      This auto-starts the proxy, routes macOS system traffic through it, and opens a live terminal UI.
+      Press <code>Ctrl+C</code> to quit. The system proxy is automatically disabled.
+    </p>
+
+    <h2 id="manual-setup">Manual Setup</h2>
+    <pre><code># Start the proxy (default: proxy on :8080, web UI on :8081)
+roxyproxy start
+
+# Route traffic through it
+curl -x http://127.0.0.1:8080 http://httpbin.org/get
+
+# View captured traffic
+roxyproxy requests
+
+# Open the web UI
+open http://127.0.0.1:8081
+
+# Stop
+roxyproxy stop</code></pre>
+
+    <h2 id="https-interception">HTTPS Interception</h2>
+    <p>To capture HTTPS traffic, trust the CA certificate first:</p>
+    <pre><code>roxyproxy start
+roxyproxy trust-ca
+curl -x http://127.0.0.1:8080 https://api.example.com/endpoint</code></pre>
+
+    <h2 id="ai-assisted-debugging">AI-Assisted Debugging</h2>
+    <p>Install the AI agent plugin to let your AI agent query captured traffic:</p>
+    <pre><code>/plugin marketplace add rvanbaalen/roxyproxy</code></pre>
+    <p>
+      Once installed, just tell your AI agent what you need:
+      <em>"The Stripe webhook is failing. Debug it."</em>
+      Your agent will query RoxyProxy, find the failing request, and fix your code.
+    </p>
+
+    <h2 id="platform-support">Platform Support</h2>
+    <p>RoxyProxy works on <strong>macOS</strong> and <strong>Linux</strong>. Some features are macOS-only:</p>
+    <ul>
+      <li><strong>System proxy</strong> (<code>proxy-on</code> / <code>proxy-off</code>) uses macOS <code>networksetup</code></li>
+      <li><strong>CA trust</strong> (<code>trust-ca</code>) uses macOS Keychain. Linux support exists but is less tested</li>
+    </ul>
+
+    <h2 id="next-steps">Next Steps</h2>
+    <ul>
+      <li><a href={`${base}docs/cli`}>CLI Reference</a> - All commands, flags, and output formats</li>
+      <li><a href={`${base}docs/https`}>HTTPS Interception</a> - Set up HTTPS traffic capture with local CA certificates</li>
+      <li><a href={`${base}docs/agent-plugin`}>AI Agent Plugin</a> - AI-assisted HTTP debugging in your terminal</li>
+      <li><a href={`${base}docs/web-ui`}>Web UI Dashboard</a> - Live traffic stream, filters, and request inspection</li>
+      <li><a href={`${base}docs/recipes`}>Debugging Recipes</a> - Step-by-step debugging workflows for common scenarios</li>
+      <li><a href={`${base}docs/configuration`}>Configuration</a> - Config file, auto-cleanup, and storage options</li>
+    </ul>
+  </div>
+</DocsLayout>
+
+<style>
+  .prose-custom h2 {
+    color: var(--color-text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose-custom p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+  .prose-custom pre {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+  .prose-custom code:not(pre code) {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  .prose-custom ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .prose-custom li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+  .prose-custom em {
+    color: var(--color-accent);
+    font-style: normal;
+  }
+  .prose-custom strong {
+    color: var(--color-text-primary);
+  }
+  .prose-custom a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-custom a:hover {
+    color: var(--color-text-primary);
+  }
+</style>

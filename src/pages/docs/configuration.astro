@@ -1,0 +1,204 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+
+const base = import.meta.env.BASE_URL;
+
+const configExample = `{
+  "proxyPort": 8080,
+  "uiPort": 8081,
+  "dbPath": "~/.roxyproxy/data.db",
+  "maxAge": "7d",
+  "maxDbSize": "500MB",
+  "maxBodySize": "1MB",
+  "certCacheSize": 500
+}`;
+---
+
+<DocsLayout title="Configuration" description="Configure RoxyProxy storage limits, auto-cleanup, proxy ports, and HTTPS certificate caching via config file or CLI flags." headings={[
+  { id: "config-file", text: "Config File", depth: 2 },
+  { id: "options", text: "Options", depth: 2 },
+  { id: "size-and-duration-formats", text: "Size and Duration Formats", depth: 2 },
+  { id: "auto-cleanup", text: "Auto-Cleanup", depth: 2 },
+  { id: "related", text: "Related", depth: 2 },
+]}>
+  <div class="prose-custom">
+    <p>
+      Configuration is loaded from three sources, in order of priority (highest first):
+    </p>
+    <ol>
+      <li><strong>CLI flags</strong> -- passed directly to the command</li>
+      <li><strong>Config file</strong> -- <code>~/.roxyproxy/config.json</code></li>
+      <li><strong>Built-in defaults</strong></li>
+    </ol>
+    <p>
+      CLI flags always win. Values not set on the command line fall back to the config file,
+      and anything not in the config file uses the built-in default.
+    </p>
+
+    <h2 id="config-file">Config File</h2>
+    <p>Create <code>~/.roxyproxy/config.json</code>:</p>
+    <pre><code>{configExample}</code></pre>
+
+    <h2 id="options">Options</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Default</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>proxyPort</code></td>
+          <td><code>8080</code></td>
+          <td>Proxy listening port</td>
+        </tr>
+        <tr>
+          <td><code>uiPort</code></td>
+          <td><code>8081</code></td>
+          <td>Web UI and REST API port</td>
+        </tr>
+        <tr>
+          <td><code>dbPath</code></td>
+          <td><code>~/.roxyproxy/data.db</code></td>
+          <td>SQLite database file path (supports <code>~</code>)</td>
+        </tr>
+        <tr>
+          <td><code>maxAge</code></td>
+          <td><code>7d</code></td>
+          <td>Auto-delete requests older than this</td>
+        </tr>
+        <tr>
+          <td><code>maxDbSize</code></td>
+          <td><code>500MB</code></td>
+          <td>Auto-delete oldest requests when DB exceeds this size</td>
+        </tr>
+        <tr>
+          <td><code>maxBodySize</code></td>
+          <td><code>1MB</code></td>
+          <td>Truncate request/response bodies larger than this</td>
+        </tr>
+        <tr>
+          <td><code>certCacheSize</code></td>
+          <td><code>500</code></td>
+          <td>Max per-domain SSL certificates cached in memory</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 id="size-and-duration-formats">Size and Duration Formats</h2>
+    <p>
+      <strong>Sizes</strong> accept raw bytes (<code>1048576</code>) or human-readable units
+      (<code>1KB</code>, <code>10MB</code>, <code>1GB</code>).
+    </p>
+    <p>
+      <strong>Durations</strong> accept raw milliseconds (<code>86400000</code>) or human-readable units
+      (<code>1s</code>, <code>5m</code>, <code>1h</code>, <code>7d</code>).
+    </p>
+
+    <h2 id="auto-cleanup">Auto-Cleanup</h2>
+    <p>
+      A background job runs every 5 minutes to enforce <code>maxAge</code> and <code>maxDbSize</code>:
+    </p>
+    <ul>
+      <li>Deletes requests older than <code>maxAge</code></li>
+      <li>If the database still exceeds <code>maxDbSize</code>, deletes the oldest requests in batches</li>
+      <li>Runs incremental vacuum to reclaim disk space</li>
+    </ul>
+    <p>
+      This means you can leave RoxyProxy running indefinitely without worrying about disk usage.
+      The defaults (7 days, 500 MB) keep a useful history window while staying lightweight.
+    </p>
+
+    <h2 id="related">Related</h2>
+    <ul>
+      <li><a href={`${base}docs/getting-started`}>Getting Started</a> - Install and capture your first request</li>
+      <li><a href={`${base}docs/cli`}>CLI Reference</a> - CLI flags that override config file values</li>
+      <li><a href={`${base}docs/architecture`}>Architecture</a> - How configuration is loaded and applied</li>
+      <li><a href={`${base}docs/https`}>HTTPS Interception</a> - CA certificate setup and certCacheSize tuning</li>
+    </ul>
+  </div>
+</DocsLayout>
+
+<style>
+  .prose-custom h2 {
+    color: var(--color-text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose-custom p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+  .prose-custom pre {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+  .prose-custom code:not(pre code) {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  .prose-custom ul, .prose-custom ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .prose-custom ul {
+    list-style: disc;
+  }
+  .prose-custom ol {
+    list-style: decimal;
+  }
+  .prose-custom li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+  .prose-custom em {
+    color: var(--color-accent);
+    font-style: normal;
+  }
+  .prose-custom strong {
+    color: var(--color-text-primary);
+  }
+  .prose-custom table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+  .prose-custom th {
+    text-align: left;
+    color: var(--color-text-primary);
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 2px solid var(--color-border);
+  }
+  .prose-custom td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+  .prose-custom a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-custom a:hover {
+    color: var(--color-text-primary);
+  }
+</style>

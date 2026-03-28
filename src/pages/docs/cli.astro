@@ -1,0 +1,385 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+
+const base = import.meta.env.BASE_URL;
+---
+
+<DocsLayout title="CLI Reference" description="Complete CLI reference for RoxyProxy. All commands, flags, filter aliases, and output formats including --format agent for AI." headings={[
+  { id: "start", text: "start", depth: 2 },
+  { id: "stop", text: "stop", depth: 2 },
+  { id: "status", text: "status", depth: 2 },
+  { id: "requests", text: "requests", depth: 2 },
+  { id: "filter-aliases", text: "Filter aliases", depth: 3 },
+  { id: "output-formats", text: "Output formats", depth: 3 },
+  { id: "examples", text: "Examples", depth: 3 },
+  { id: "real-time-tailing", text: "Real-time tailing", depth: 3 },
+  { id: "tui-keyboard-shortcuts", text: "TUI keyboard shortcuts", depth: 3 },
+  { id: "request", text: "request", depth: 2 },
+  { id: "clear", text: "clear", depth: 2 },
+  { id: "trust-ca", text: "trust-ca", depth: 2 },
+  { id: "uninstall-ca", text: "uninstall-ca", depth: 2 },
+  { id: "proxy-on", text: "proxy-on", depth: 2 },
+  { id: "proxy-off", text: "proxy-off", depth: 2 },
+  { id: "related", text: "Related", depth: 2 },
+]}>
+  <div class="prose-custom">
+    <p>
+      RoxyProxy is controlled entirely from the command line. Running <code>roxyproxy</code> with no arguments
+      launches an interactive terminal menu. All commands follow the pattern:
+    </p>
+    <pre><code>roxyproxy &lt;command&gt; [options]</code></pre>
+
+    <!-- start -->
+    <h2 id="start">start</h2>
+    <p>Start the proxy server in the foreground.</p>
+    <pre><code>roxyproxy start [options]</code></pre>
+    <table>
+      <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>--port &lt;number&gt;</code></td><td><code>8080</code></td><td>Proxy listening port</td></tr>
+        <tr><td><code>--ui-port &lt;number&gt;</code></td><td><code>8081</code></td><td>Web UI and API port</td></tr>
+        <tr><td><code>--db-path &lt;path&gt;</code></td><td><code>~/.roxyproxy/data.db</code></td><td>SQLite database location</td></tr>
+      </tbody>
+    </table>
+    <pre><code># Default ports
+roxyproxy start
+
+# Custom ports
+roxyproxy start --port 9000 --ui-port 9001
+
+# Custom database location
+roxyproxy start --db-path /tmp/proxy.db</code></pre>
+    <p>
+      The process writes its PID to <code>~/.roxyproxy/pid</code> and responds to
+      <code>SIGINT</code>/<code>SIGTERM</code> for graceful shutdown.
+    </p>
+
+    <!-- stop -->
+    <h2 id="stop">stop</h2>
+    <p>Stop the running proxy server.</p>
+    <pre><code>roxyproxy stop [options]</code></pre>
+    <table>
+      <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>--ui-port &lt;number&gt;</code></td><td><code>8081</code></td><td>API port to send shutdown request to</td></tr>
+      </tbody>
+    </table>
+    <p>Sends a graceful shutdown request via the API. Falls back to <code>SIGTERM</code> via the PID file if the API is unreachable.</p>
+    <pre><code>roxyproxy stop
+roxyproxy stop --ui-port 9001</code></pre>
+
+    <!-- status -->
+    <h2 id="status">status</h2>
+    <p>Show proxy status.</p>
+    <pre><code>roxyproxy status [options]</code></pre>
+    <table>
+      <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>--ui-port &lt;number&gt;</code></td><td><code>8081</code></td><td>API port to query</td></tr>
+      </tbody>
+    </table>
+    <pre><code>roxyproxy status</code></pre>
+    <p>Example output:</p>
+    <pre><code>Status     Running
+Proxy      port 8080
+Requests   142
+DB Size    3.2MB</code></pre>
+
+    <!-- requests -->
+    <h2 id="requests">requests</h2>
+    <p>Query captured requests from the database. This is the most powerful command in RoxyProxy.</p>
+    <pre><code>roxyproxy requests [options]</code></pre>
+    <table>
+      <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>--host &lt;pattern&gt;</code></td><td></td><td>Filter by hostname (substring match)</td></tr>
+        <tr><td><code>--status &lt;code&gt;</code></td><td></td><td>Filter by HTTP status code</td></tr>
+        <tr><td><code>--method &lt;method&gt;</code></td><td></td><td>Filter by HTTP method</td></tr>
+        <tr><td><code>--search &lt;pattern&gt;</code></td><td></td><td>Search URLs (substring match)</td></tr>
+        <tr><td><code>--since &lt;time&gt;</code></td><td></td><td>After this time (Unix ms or ISO date)</td></tr>
+        <tr><td><code>--until &lt;time&gt;</code></td><td></td><td>Before this time (Unix ms or ISO date)</td></tr>
+        <tr><td><code>--limit &lt;n&gt;</code></td><td><code>100</code></td><td>Maximum number of results</td></tr>
+        <tr><td><code>--format &lt;format&gt;</code></td><td><code>table</code></td><td>Output format: <code>table</code>, <code>json</code>, or <code>agent</code></td></tr>
+        <tr><td><code>--tail</code></td><td></td><td>Stream new requests in real-time (interactive TUI)</td></tr>
+        <tr><td><code>--ui-port &lt;number&gt;</code></td><td><code>8081</code></td><td>UI/API port (used with <code>--tail</code>)</td></tr>
+        <tr><td><code>--db-path &lt;path&gt;</code></td><td><code>~/.roxyproxy/data.db</code></td><td>Database location</td></tr>
+      </tbody>
+    </table>
+
+    <h3 id="filter-aliases">Filter aliases</h3>
+    <p>Shorthand flags for common queries:</p>
+    <table>
+      <thead><tr><th>Alias</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>--failed</code></td><td>Show only 4xx and 5xx responses</td></tr>
+        <tr><td><code>--last-hour</code></td><td>Requests from the last hour</td></tr>
+        <tr><td><code>--last-day</code></td><td>Requests from the last 24 hours</td></tr>
+        <tr><td><code>--slow &lt;ms&gt;</code></td><td>Requests slower than threshold (in milliseconds)</td></tr>
+      </tbody>
+    </table>
+
+    <h3 id="output-formats">Output formats</h3>
+    <p>
+      The default output is a human-readable <code>table</code>. Use <code>--format json</code> for piping
+      to <code>jq</code> or feeding to scripts. Use <code>--format agent</code> for LLM-optimized output
+      that is compact and structured for AI consumption.
+    </p>
+
+    <h3 id="examples">Examples</h3>
+    <pre><code># All 500 errors
+roxyproxy requests --status 500
+
+# POST requests to a specific host
+roxyproxy requests --host api.example.com --method POST
+
+# Search URLs
+roxyproxy requests --search "/api/v2"
+
+# Limit results
+roxyproxy requests --format table --limit 20
+
+# Time-bounded query
+roxyproxy requests --since "2024-01-15T00:00:00Z" --until "2024-01-16T00:00:00Z"
+
+# JSON for piping to jq
+roxyproxy requests --format json --host stripe.com | jq '.data[].url'
+
+# LLM-optimized output
+roxyproxy requests --format agent --failed
+
+# Only failed requests from the last hour
+roxyproxy requests --failed --last-hour
+
+# Slow requests from the last day
+roxyproxy requests --slow 1000 --last-day
+
+# Combine aliases with other filters
+roxyproxy requests --failed --host api.example.com --last-hour</code></pre>
+
+    <h3 id="real-time-tailing">Real-time tailing</h3>
+    <p>The <code>--tail</code> flag launches an interactive terminal UI that streams new requests as they arrive:</p>
+    <pre><code># Tail all traffic (auto-starts proxy + system proxy if needed)
+roxyproxy requests --tail
+
+# Tail with filters
+roxyproxy requests --host todoist.com --tail
+roxyproxy requests --status 500 --tail
+roxyproxy requests --method POST --host api.example.com --tail</code></pre>
+    <p>What <code>--tail</code> does automatically:</p>
+    <ol>
+      <li><strong>Starts the proxy</strong> if it is not already running</li>
+      <li><strong>Enables the macOS system proxy</strong> so all traffic routes through RoxyProxy</li>
+      <li>Opens an interactive TUI with arrow-key navigation</li>
+      <li>On quit (<code>Ctrl+C</code>), <strong>disables the system proxy</strong> and stops the proxy it started</li>
+    </ol>
+
+    <h3 id="tui-keyboard-shortcuts">TUI keyboard shortcuts</h3>
+    <table>
+      <thead><tr><th>Key</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><code>Up</code> / <code>Down</code></td><td>Navigate requests</td></tr>
+        <tr><td><code>Enter</code></td><td>View full request detail (headers, body)</td></tr>
+        <tr><td><code>Esc</code></td><td>Back to list from detail view</td></tr>
+        <tr><td><code>g</code> / <code>G</code></td><td>Jump to top (newest) / bottom (oldest)</td></tr>
+        <tr><td><code>Ctrl+C</code></td><td>Quit (cleans up proxy and system proxy)</td></tr>
+      </tbody>
+    </table>
+    <p>New requests auto-scroll to the top. Scrolling down disables auto-scroll; pressing <code>g</code> re-enables it.</p>
+    <p>To get raw JSON streaming instead of the TUI, use <code>--format json --tail</code>.</p>
+
+    <!-- request -->
+    <h2 id="request">request</h2>
+    <p>Show full details of a single captured request, including headers and bodies.</p>
+    <pre><code>roxyproxy request &lt;id&gt; [options]</code></pre>
+    <table>
+      <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>--format &lt;format&gt;</code></td><td><code>json</code></td><td>Output format: <code>json</code> or <code>table</code></td></tr>
+        <tr><td><code>--db-path &lt;path&gt;</code></td><td><code>~/.roxyproxy/data.db</code></td><td>Database location</td></tr>
+      </tbody>
+    </table>
+    <pre><code>roxyproxy request a1b2c3d4-e5f6-7890-abcd-ef1234567890
+roxyproxy request a1b2c3d4-e5f6-7890-abcd-ef1234567890 --format table</code></pre>
+
+    <!-- clear -->
+    <h2 id="clear">clear</h2>
+    <p>Delete all captured traffic from the database.</p>
+    <pre><code>roxyproxy clear [options]</code></pre>
+    <table>
+      <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>--ui-port &lt;number&gt;</code></td><td><code>8081</code></td><td>API port</td></tr>
+      </tbody>
+    </table>
+    <pre><code>roxyproxy clear</code></pre>
+
+    <!-- trust-ca -->
+    <h2 id="trust-ca">trust-ca</h2>
+    <p>Install and trust the RoxyProxy CA certificate for HTTPS interception.</p>
+    <pre><code>roxyproxy trust-ca [options]</code></pre>
+    <table>
+      <thead><tr><th>Option</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>--no-interactive</code></td><td>Skip prompts; print cert path and manual instructions</td></tr>
+      </tbody>
+    </table>
+    <pre><code># Interactive (prompts for sudo password)
+roxyproxy trust-ca
+
+# Non-interactive (CI, scripts)
+roxyproxy trust-ca --no-interactive</code></pre>
+
+    <!-- uninstall-ca -->
+    <h2 id="uninstall-ca">uninstall-ca</h2>
+    <p>Remove the RoxyProxy CA certificate from the system trust store.</p>
+    <pre><code>roxyproxy uninstall-ca [options]</code></pre>
+    <table>
+      <thead><tr><th>Option</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>--no-interactive</code></td><td>Skip prompts; print removal instructions</td></tr>
+      </tbody>
+    </table>
+    <pre><code># Interactive (prompts for sudo password)
+roxyproxy uninstall-ca
+
+# Non-interactive
+roxyproxy uninstall-ca --no-interactive</code></pre>
+    <p>
+      On macOS, removes via <code>security remove-trusted-cert</code>. On Linux, removes from
+      <code>/usr/local/share/ca-certificates/</code> and refreshes the store. Only available when
+      the certificate is currently installed.
+    </p>
+
+    <!-- proxy-on -->
+    <h2 id="proxy-on">proxy-on</h2>
+    <p>Configure RoxyProxy as the system-wide HTTP/HTTPS proxy. <strong>macOS only.</strong></p>
+    <pre><code>roxyproxy proxy-on [options]</code></pre>
+    <table>
+      <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>--port &lt;number&gt;</code></td><td><code>8080</code></td><td>Proxy port</td></tr>
+        <tr><td><code>--service &lt;name&gt;</code></td><td>auto-detected</td><td>Network service (e.g., "Wi-Fi", "Ethernet")</td></tr>
+      </tbody>
+    </table>
+    <pre><code>roxyproxy proxy-on
+roxyproxy proxy-on --port 9000 --service "Wi-Fi"</code></pre>
+
+    <!-- proxy-off -->
+    <h2 id="proxy-off">proxy-off</h2>
+    <p>Remove RoxyProxy from system proxy settings. <strong>macOS only.</strong></p>
+    <pre><code>roxyproxy proxy-off [options]</code></pre>
+    <table>
+      <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>--service &lt;name&gt;</code></td><td>auto-detected</td><td>Network service</td></tr>
+      </tbody>
+    </table>
+    <pre><code>roxyproxy proxy-off</code></pre>
+
+    <h2 id="related">Related</h2>
+    <ul>
+      <li><a href={`${base}docs/getting-started`}>Getting Started</a> - Install and capture your first request</li>
+      <li><a href={`${base}docs/api`}>REST API</a> - Programmatic access to captured traffic</li>
+      <li><a href={`${base}docs/configuration`}>Configuration</a> - Config file, storage limits, and auto-cleanup</li>
+      <li><a href={`${base}docs/https`}>HTTPS Interception</a> - CA trust setup for trust-ca and uninstall-ca commands</li>
+      <li><a href={`${base}docs/agent-plugin`}>AI Agent Plugin</a> - Uses --format agent for AI-optimized output</li>
+    </ul>
+  </div>
+</DocsLayout>
+
+<style>
+  .prose-custom h2 {
+    color: var(--color-text-primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .prose-custom h3 {
+    color: var(--color-text-primary);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .prose-custom p {
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+  .prose-custom pre {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+  .prose-custom code:not(pre code) {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.375rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  .prose-custom ul, .prose-custom ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .prose-custom ul {
+    list-style: disc;
+  }
+  .prose-custom ol {
+    list-style: decimal;
+  }
+  .prose-custom li {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+  }
+  .prose-custom em {
+    color: var(--color-accent);
+    font-style: normal;
+  }
+  .prose-custom strong {
+    color: var(--color-text-primary);
+  }
+  .prose-custom table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+  .prose-custom th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 2px solid var(--color-border);
+    color: var(--color-text-primary);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+  .prose-custom td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+  .prose-custom tr:last-child td {
+    border-bottom: none;
+  }
+  .prose-custom a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-custom a:hover {
+    color: var(--color-text-primary);
+  }
+</style>
