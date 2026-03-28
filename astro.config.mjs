@@ -4,8 +4,11 @@ import tailwindcss from "@tailwindcss/vite";
 import posthog from "astro-posthog";
 import pagefind from "astro-pagefind";
 
+import cloudflare from "@astrojs/cloudflare";
+
 export default defineConfig({
   site: "https://roxyproxy.robinvanbaalen.nl",
+
   integrations: [
     react(),
     ...(process.env.PUBLIC_POSTHOG_KEY
@@ -13,7 +16,10 @@ export default defineConfig({
       : []),
     pagefind(),
   ],
+
   vite: {
     plugins: [tailwindcss()],
   },
+
+  adapter: cloudflare(),
 });
