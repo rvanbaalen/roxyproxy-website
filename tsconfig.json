@@ -2,5 +2,8 @@
   "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "jsx": "react-jsx"
-  }
+  },
+  "include": [
+    "./worker-configuration.d.ts"
+  ]
 }
