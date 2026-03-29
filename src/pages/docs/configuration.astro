@@ -6,7 +6,7 @@ const base = import.meta.env.BASE_URL;
 const configExample = `{
   "proxyPort": 8080,
   "uiPort": 8081,
-  "dbPath": "~/.roxyproxy/data.db",
+  "dbPath": "~/.laurel-proxy/data.db",
   "maxAge": "7d",
   "maxDbSize": "500MB",
   "maxBodySize": "1MB",
@@ -14,7 +14,7 @@ const configExample = `{
 }`;
 ---
 
-<DocsLayout title="Configuration" description="Configure RoxyProxy storage limits, auto-cleanup, proxy ports, and HTTPS certificate caching via config file or CLI flags." headings={[
+<DocsLayout title="Configuration" description="Configure Laurel Proxy storage limits, auto-cleanup, proxy ports, and HTTPS certificate caching via config file or CLI flags." headings={[
   { id: "config-file", text: "Config File", depth: 2 },
   { id: "options", text: "Options", depth: 2 },
   { id: "size-and-duration-formats", text: "Size and Duration Formats", depth: 2 },
@@ -27,7 +27,7 @@ const configExample = `{
     </p>
     <ol>
       <li><strong>CLI flags</strong> -- passed directly to the command</li>
-      <li><strong>Config file</strong> -- <code>~/.roxyproxy/config.json</code></li>
+      <li><strong>Config file</strong> -- <code>~/.laurel-proxy/config.json</code></li>
       <li><strong>Built-in defaults</strong></li>
     </ol>
     <p>
@@ -36,7 +36,7 @@ const configExample = `{
     </p>
 
     <h2 id="config-file">Config File</h2>
-    <p>Create <code>~/.roxyproxy/config.json</code>:</p>
+    <p>Create <code>~/.laurel-proxy/config.json</code>:</p>
     <pre><code>{configExample}</code></pre>
 
     <h2 id="options">Options</h2>
@@ -61,7 +61,7 @@ const configExample = `{
         </tr>
         <tr>
           <td><code>dbPath</code></td>
-          <td><code>~/.roxyproxy/data.db</code></td>
+          <td><code>~/.laurel-proxy/data.db</code></td>
           <td>SQLite database file path (supports <code>~</code>)</td>
         </tr>
         <tr>
@@ -107,7 +107,7 @@ const configExample = `{
       <li>Runs incremental vacuum to reclaim disk space</li>
     </ul>
     <p>
-      This means you can leave RoxyProxy running indefinitely without worrying about disk usage.
+      This means you can leave Laurel Proxy running indefinitely without worrying about disk usage.
       The defaults (7 days, 500 MB) keep a useful history window while staying lightweight.
     </p>
 

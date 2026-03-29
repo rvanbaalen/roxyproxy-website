@@ -4,7 +4,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 const base = import.meta.env.BASE_URL;
 ---
 
-<DocsLayout title="Getting Started" description="Install RoxyProxy in 10 seconds and capture your first HTTP request. Quick setup guide for the open source HTTP proxy with HTTPS interception and AI agent integration." headings={[
+<DocsLayout title="Getting Started" description="Install Laurel Proxy in 10 seconds and capture your first HTTP request. Quick setup guide for the open source HTTP proxy with HTTPS interception and AI agent integration." headings={[
   { id: "installation", text: "Installation", depth: 2 },
   { id: "quick-start", text: "Quick Start", depth: 2 },
   { id: "manual-setup", text: "Manual Setup", depth: 2 },
@@ -16,19 +16,19 @@ const base = import.meta.env.BASE_URL;
   <div class="prose-custom">
     <h2 id="installation">Installation</h2>
     <p>Run directly without installing:</p>
-    <pre><code>npx @rvanbaalen/roxyproxy</code></pre>
+    <pre><code>npx laurel-proxy</code></pre>
 
     <p>Or install globally:</p>
-    <pre><code>npm install -g @rvanbaalen/roxyproxy
-roxyproxy</code></pre>
+    <pre><code>npm install -g laurel-proxy
+laurel-proxy</code></pre>
 
     <h2 id="quick-start">Quick Start</h2>
     <p>The fastest way to capture traffic:</p>
     <pre><code># One command: starts proxy, enables system proxy, opens interactive TUI
-roxyproxy requests --tail
+laurel-proxy requests --tail
 
 # Filter for a specific host
-roxyproxy requests --host api.example.com --tail</code></pre>
+laurel-proxy requests --host api.example.com --tail</code></pre>
     <p>
       This auto-starts the proxy, routes macOS system traffic through it, and opens a live terminal UI.
       Press <code>Ctrl+C</code> to quit. The system proxy is automatically disabled.
@@ -36,37 +36,37 @@ roxyproxy requests --host api.example.com --tail</code></pre>
 
     <h2 id="manual-setup">Manual Setup</h2>
     <pre><code># Start the proxy (default: proxy on :8080, web UI on :8081)
-roxyproxy start
+laurel-proxy start
 
 # Route traffic through it
 curl -x http://127.0.0.1:8080 http://httpbin.org/get
 
 # View captured traffic
-roxyproxy requests
+laurel-proxy requests
 
 # Open the web UI
 open http://127.0.0.1:8081
 
 # Stop
-roxyproxy stop</code></pre>
+laurel-proxy stop</code></pre>
 
     <h2 id="https-interception">HTTPS Interception</h2>
     <p>To capture HTTPS traffic, trust the CA certificate first:</p>
-    <pre><code>roxyproxy start
-roxyproxy trust-ca
+    <pre><code>laurel-proxy start
+laurel-proxy trust-ca
 curl -x http://127.0.0.1:8080 https://api.example.com/endpoint</code></pre>
 
     <h2 id="ai-assisted-debugging">AI-Assisted Debugging</h2>
     <p>Install the AI agent plugin to let your AI agent query captured traffic:</p>
-    <pre><code>/plugin marketplace add rvanbaalen/roxyproxy</code></pre>
+    <pre><code>/plugin marketplace add rvanbaalen/laurelproxy</code></pre>
     <p>
       Once installed, just tell your AI agent what you need:
       <em>"The Stripe webhook is failing. Debug it."</em>
-      Your agent will query RoxyProxy, find the failing request, and fix your code.
+      Your agent will query Laurel Proxy, find the failing request, and fix your code.
     </p>
 
     <h2 id="platform-support">Platform Support</h2>
-    <p>RoxyProxy works on <strong>macOS</strong> and <strong>Linux</strong>. Some features are macOS-only:</p>
+    <p>Laurel Proxy works on <strong>macOS</strong> and <strong>Linux</strong>. Some features are macOS-only:</p>
     <ul>
       <li><strong>System proxy</strong> (<code>proxy-on</code> / <code>proxy-off</code>) uses macOS <code>networksetup</code></li>
       <li><strong>CA trust</strong> (<code>trust-ca</code>) uses macOS Keychain. Linux support exists but is less tested</li>

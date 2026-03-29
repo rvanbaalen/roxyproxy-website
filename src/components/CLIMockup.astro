@@ -14,7 +14,7 @@
   <!-- Terminal content -->
   <div class="p-3 leading-relaxed" style="height: 280px; overflow: hidden;">
     <div class="whitespace-pre text-[#666]"># AI agent queries captured traffic</div>
-    <div class="whitespace-pre"><span class="text-accent">$</span> <span class="text-[#ccc]">roxyproxy requests --status 422 --format agent</span></div>
+    <div class="whitespace-pre"><span class="text-accent">$</span> <span class="text-[#ccc]">laurel-proxy requests --status 422 --format agent</span></div>
     <div class="whitespace-pre text-[#ccc]">[</div>
     <div class="whitespace-pre text-[#ccc]">  {"{"}</div>
     <div class="whitespace-pre text-[#ccc]">    "id": <span class="text-blue-400">1847</span>,</div>
@@ -32,7 +32,7 @@
     <div class="whitespace-pre text-[#ccc]">  {"}"}</div>
     <div class="whitespace-pre text-[#ccc]">]</div>
     <div class="whitespace-pre mt-1 text-[#666]"># Agent fixes the code, replays to verify</div>
-    <div class="whitespace-pre"><span class="text-accent">$</span> <span class="text-[#ccc]">roxyproxy replay 1847</span></div>
+    <div class="whitespace-pre"><span class="text-accent">$</span> <span class="text-[#ccc]">laurel-proxy replay 1847</span></div>
     <div class="whitespace-pre text-amber-400">POST /v2/orders → <span class="text-accent">200 OK ✓</span></div>
   </div>
 </div>

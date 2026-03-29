@@ -20,7 +20,7 @@ function mockMatchMedia(reducedMotion: boolean) {
 }
 
 const sampleLines: TerminalLine[] = [
-  { type: "prompt", text: "$ roxyproxy start" },
+  { type: "prompt", text: "$ laurel-proxy start" },
   { type: "output", text: "Proxy listening on :9229" },
   { type: "comment", text: "# Filter by status" },
   { type: "highlight", text: "POST /api/users 422 34ms" },
@@ -89,7 +89,7 @@ describe("TerminalReplay", () => {
       vi.advanceTimersByTime(0);
     });
 
-    expect(container.textContent).toContain("roxyproxy start");
+    expect(container.textContent).toContain("laurel-proxy start");
     expect(container.textContent).toContain("Proxy listening on :9229");
     expect(container.textContent).toContain("# Filter by status");
     expect(container.textContent).toContain("POST /api/users 422 34ms");

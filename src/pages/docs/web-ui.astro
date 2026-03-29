@@ -4,47 +4,201 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 const base = import.meta.env.BASE_URL;
 ---
 
-<DocsLayout title="Web UI" description="RoxyProxy web dashboard for live traffic inspection. Real-time streaming, sortable columns, request detail panel, and filters." headings={[
-  { id: "features", text: "Features", depth: 2 },
+<DocsLayout title="Web UI" description="Laurel Proxy web dashboard for live traffic inspection. Real-time streaming, sortable columns, request detail panel, filters, repeater, and cURL export." headings={[
+  { id: "overview", text: "Overview", depth: 2 },
   { id: "opening-the-ui", text: "Opening the UI", depth: 2 },
+  { id: "request-list", text: "Request List", depth: 2 },
+  { id: "sortable-columns", text: "Sortable columns", depth: 3 },
+  { id: "status-counters", text: "Status counters", depth: 3 },
   { id: "filtering-traffic", text: "Filtering Traffic", depth: 2 },
+  { id: "status-code-filters", text: "Status code filters", depth: 3 },
+  { id: "method-filters", text: "Method filters", depth: 3 },
+  { id: "url-search", text: "URL search", depth: 3 },
+  { id: "combining-filters", text: "Combining filters", depth: 3 },
+  { id: "request-detail-panel", text: "Request Detail Panel", depth: 2 },
+  { id: "response-tab", text: "Response tab", depth: 3 },
+  { id: "request-tab", text: "Request tab", depth: 3 },
+  { id: "detail-metadata", text: "Detail metadata", depth: 3 },
+  { id: "curl-export", text: "cURL export", depth: 3 },
   { id: "repeater", text: "Repeater", depth: 2 },
+  { id: "proxy-controls", text: "Proxy Controls", depth: 2 },
+  { id: "real-time-streaming", text: "Real-time Streaming", depth: 2 },
+  { id: "keyboard-shortcuts", text: "Keyboard Shortcuts", depth: 2 },
   { id: "related", text: "Related", depth: 2 },
 ]}>
   <div class="prose-custom">
-    <p>The web interface is available at <code>http://127.0.0.1:8081</code> when the proxy is running. It provides a real-time dashboard for inspecting all captured HTTP and HTTPS traffic.</p>
+    <p>The web interface is a real-time dashboard for inspecting all HTTP and HTTPS traffic passing through Laurel Proxy. It runs alongside the proxy and provides instant visibility into every request and response, with filtering, sorting, detail inspection, and request replay.</p>
 
-    <h2 id="features">Features</h2>
+    <img src={`${base}screenshots/web-ui-request-list.png`} alt="Laurel Proxy web UI showing the main request list with captured HTTP traffic" class="screenshot" />
 
+    <h2 id="overview">Overview</h2>
+    <p>The web UI is a single-page application that connects to the proxy via Server-Sent Events (SSE) for live updates. It is available at <code>http://127.0.0.1:8081</code> by default (or whatever port is configured with <code>--ui-port</code>). The interface has two main views:</p>
     <ul>
-      <li><strong>Live traffic stream</strong> -- requests appear in real-time via Server-Sent Events as they pass through the proxy</li>
-      <li><strong>Historical traffic</strong> -- previously captured requests load automatically when you open the page</li>
-      <li><strong>Sortable columns</strong> -- click any column header to sort by Time, Method, Status, Host, Path, Duration, or Size</li>
-      <li><strong>Resizable columns</strong> -- drag column borders to adjust widths to your preference</li>
-      <li><strong>Request detail panel</strong> -- click any row to inspect full request and response headers and body in a resizable side panel</li>
-      <li><strong>Filters</strong> -- narrow results by host, status code, HTTP method, or URL search</li>
-      <li><strong>Proxy controls</strong> -- start and stop the proxy and clear all captured traffic directly from the UI</li>
-      <li><strong>Live sync</strong> -- proxy start/stop state is synchronized between the web UI and CLI in real-time. Stop the proxy from the dashboard and the CLI updates within a second, and vice versa</li>
+      <li><strong>Traffic</strong> -- the main request list with filters, sorting, and a detail panel</li>
+      <li><strong>Repeater</strong> -- an editor for crafting and resending captured requests</li>
+    </ul>
+    <p>The top toolbar provides proxy status, search, view switching, and quick actions:</p>
+    <img src={`${base}screenshots/web-ui-toolbar.png`} alt="Web UI toolbar showing proxy status, search bar, view tabs, and action buttons" class="screenshot" />
+    <p>From left to right, the toolbar contains:</p>
+    <ul>
+      <li><strong>Running :8082</strong> -- proxy status indicator showing the proxy port (green when running)</li>
+      <li><strong>System Proxy</strong> -- toggle for macOS system proxy routing</li>
+      <li><strong>Filter search bar</strong> -- full-text URL search with keyboard shortcut hint</li>
+      <li><strong>Traffic / Repeater</strong> -- view switcher tabs</li>
+      <li><strong>Clear</strong> -- delete all captured traffic</li>
+      <li><strong>CA Cert</strong> -- download the root CA certificate for HTTPS interception</li>
     </ul>
 
     <h2 id="opening-the-ui">Opening the UI</h2>
     <p>Start the proxy and open the dashboard:</p>
-    <pre><code>roxyproxy start
+    <pre><code>laurel-proxy start
 open http://127.0.0.1:8081</code></pre>
     <p>Or use the interactive menu, which has an <strong>Open web UI</strong> option that auto-starts the proxy if needed:</p>
-    <pre><code>roxyproxy</code></pre>
+    <pre><code>laurel-proxy</code></pre>
+    <p>If you started the proxy with custom ports, adjust the URL accordingly:</p>
+    <pre><code>laurel-proxy start --ui-port 9001
+open http://127.0.0.1:9001</code></pre>
+
+    <h2 id="request-list">Request List</h2>
+    <p>The traffic view shows all captured requests in a table with seven columns:</p>
+    <table>
+      <thead><tr><th>Column</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Time</strong></td><td>Timestamp when the request was received (HH:MM:SS.ms)</td></tr>
+        <tr><td><strong>Method</strong></td><td>HTTP method, color-coded (green for GET, blue for POST, orange for PUT, etc.)</td></tr>
+        <tr><td><strong>Status</strong></td><td>Response status code, color-coded (green for 2xx, yellow for 3xx, orange for 4xx, red for 5xx)</td></tr>
+        <tr><td><strong>Path</strong></td><td>Request URL path</td></tr>
+        <tr><td><strong>Host</strong></td><td>Target hostname</td></tr>
+        <tr><td><strong>ms</strong></td><td>Round-trip time in milliseconds</td></tr>
+        <tr><td><strong>Size</strong></td><td>Response body size</td></tr>
+      </tbody>
+    </table>
+    <p>Click any row to open the <a href="#request-detail-panel">detail panel</a>. The selected row is highlighted to show which request you are inspecting.</p>
+
+    <h3 id="sortable-columns">Sortable columns</h3>
+    <p>Click any column header to sort the request list by that field. Click again to reverse the sort order. A sort indicator arrow appears next to the active column header. By default, requests are sorted by time (newest first).</p>
+    <img src={`${base}screenshots/web-ui-sorting.png`} alt="Request list sorted by status code, showing requests grouped by their HTTP status" class="screenshot" />
+    <p>Columns are also resizable -- drag the border between column headers to adjust widths to your preference.</p>
+
+    <h3 id="status-counters">Status counters</h3>
+    <p>Above the column headers on the right side, two counters show at a glance how many requests are currently visible and how many of those are errors (4xx and 5xx status codes). For example, <strong>13</strong> requests <strong>2</strong> errors. When filters are active, the counter updates to show the filtered count out of the total, like <strong>1/13</strong> requests.</p>
 
     <h2 id="filtering-traffic">Filtering Traffic</h2>
-    <p>The filter bar is always accessible at the top of the traffic table. Type in any filter field to narrow results instantly. You can combine filters -- for example, filter by host <code>api.example.com</code> and status <code>500</code> to find only server errors for that API.</p>
+    <p>The filter bar below the toolbar lets you narrow the request list instantly. There are two types of filters: status code buttons (All, 2xx, 4xx, 5xx) and method buttons (GET, POST, PUT, DELETE). Filters can be combined with the URL search bar for precise results.</p>
+
+    <h3 id="status-code-filters">Status code filters</h3>
+    <p>Click the status code buttons to filter by response category:</p>
+    <ul>
+      <li><strong>All</strong> -- show all requests (default)</li>
+      <li><strong>2xx</strong> -- successful responses only</li>
+      <li><strong>4xx</strong> -- client errors (400, 401, 403, 404, etc.)</li>
+      <li><strong>5xx</strong> -- server errors (500, 502, 503, etc.)</li>
+    </ul>
+    <img src={`${base}screenshots/web-ui-filters.png`} alt="Web UI with 4xx filter active, showing only the 404 request" class="screenshot" />
+    <p>The active filter button is highlighted with a green border. The counter updates to reflect the filtered results.</p>
+
+    <h3 id="method-filters">Method filters</h3>
+    <p>Click a method button to filter by HTTP method: GET, POST, PUT, or DELETE. This is useful when you want to isolate write operations (POST/PUT) from read operations (GET).</p>
+
+    <h3 id="url-search">URL search</h3>
+    <p>Type in the search bar to filter requests by URL path. The filter is applied instantly as you type -- no need to press Enter. The search matches against the full URL path as a substring. Use the keyboard shortcut <code>Cmd+K</code> (macOS) to focus the search bar quickly.</p>
+    <img src={`${base}screenshots/web-ui-search.png`} alt="URL search filtering requests containing 'status' in the path" class="screenshot" />
+
+    <h3 id="combining-filters">Combining filters</h3>
+    <p>All filters work together. For example, you can select <strong>5xx</strong> + type <code>api</code> in the search bar to find only server errors on API endpoints. Or select <strong>POST</strong> + type a hostname to see all POST requests to a specific service.</p>
+
+    <h2 id="request-detail-panel">Request Detail Panel</h2>
+    <p>Click any row in the request list to open the detail panel on the right side. The panel shows full request and response information in a resizable split view.</p>
+    <img src={`${base}screenshots/web-ui-request-detail.png`} alt="Request detail panel showing response headers and JSON body for a POST request" class="screenshot" />
+    <p>The detail panel header shows:</p>
+    <ul>
+      <li>The <strong>HTTP method</strong>, <strong>status code</strong>, and <strong>full URL</strong> of the request</li>
+      <li>Action buttons: <strong>Repeater</strong> (send to repeater), <strong>cURL</strong> (copy as cURL command), and <strong>close</strong></li>
+      <li>Metadata: <strong>response time</strong> in milliseconds, <strong>response size</strong>, <strong>protocol</strong> (http/https), and <strong>timestamp</strong></li>
+    </ul>
+
+    <h3 id="response-tab">Response tab</h3>
+    <p>The <strong>Response</strong> tab (shown by default) displays:</p>
+    <ul>
+      <li><strong>Headers</strong> -- all response headers (content-type, server, cache-control, etc.) displayed as key-value pairs</li>
+      <li><strong>Body</strong> -- the response body with syntax highlighting for JSON, XML, HTML, and other content types. JSON responses are automatically pretty-printed for readability</li>
+    </ul>
+
+    <h3 id="request-tab">Request tab</h3>
+    <p>Switch to the <strong>Request</strong> tab to see the outgoing request details:</p>
+    <img src={`${base}screenshots/web-ui-request-headers.png`} alt="Request tab showing outgoing request headers and body" class="screenshot" />
+    <ul>
+      <li><strong>Headers</strong> -- all request headers sent to the server (Host, User-Agent, Content-Type, Authorization, etc.)</li>
+      <li><strong>Body</strong> -- the request body (for POST, PUT, PATCH requests), with syntax highlighting</li>
+    </ul>
+
+    <h3 id="detail-metadata">Detail metadata</h3>
+    <p>The metadata bar between the title and the tabs shows four pieces of information:</p>
+    <table>
+      <thead><tr><th>Field</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ms</strong></td><td>Response time in milliseconds (e.g., 95ms)</td></tr>
+        <tr><td><strong>Size</strong></td><td>Response body size (e.g., 422B)</td></tr>
+        <tr><td><strong>Protocol</strong></td><td>Whether the request used HTTP or HTTPS</td></tr>
+        <tr><td><strong>Timestamp</strong></td><td>When the request was made (e.g., 4:47:02 PM)</td></tr>
+      </tbody>
+    </table>
+
+    <h3 id="curl-export">cURL export</h3>
+    <p>Click the <strong>cURL</strong> button in the detail panel header to copy a cURL command for the selected request to your clipboard. The generated command includes the method, URL, headers, and body, so you can replay the exact request from your terminal. This is useful for sharing requests with teammates or testing from the command line.</p>
 
     <h2 id="repeater">Repeater</h2>
-    <p>The Repeater feature lets you take a captured request, edit it, and resend it -- useful for debugging APIs or reproducing edge cases. Select a request from the traffic table, modify the method, URL, headers, or body in a tabbed editor, then send it through the proxy and inspect the response. This feature is currently in progress.</p>
+    <p>The Repeater is a built-in HTTP client for crafting and resending requests. Switch to the Repeater view using the <strong>Repeater</strong> tab in the top toolbar, or send any captured request to the Repeater by clicking the <strong>Repeater</strong> button in the detail panel.</p>
+    <img src={`${base}screenshots/web-ui-repeater-editor.png`} alt="Repeater editor with method selector, URL field, headers, and body editors" class="screenshot" />
+    <p>The Repeater editor is split into two halves:</p>
+    <ul>
+      <li><strong>Left: Request editor</strong>
+        <ul>
+          <li><strong>Method dropdown</strong> -- select GET, POST, PUT, PATCH, DELETE, HEAD, or OPTIONS</li>
+          <li><strong>URL field</strong> -- the full URL to send the request to</li>
+          <li><strong>Headers editor</strong> -- free-text area for custom headers (one per line, <code>Name: Value</code> format)</li>
+          <li><strong>Body editor</strong> -- free-text area for the request body (JSON, form data, etc.)</li>
+          <li><strong>Send button</strong> -- sends the request through the proxy</li>
+        </ul>
+      </li>
+      <li><strong>Right: Response viewer</strong> -- displays the response after sending, with headers and body</li>
+    </ul>
+    <p>You can open multiple Repeater tabs simultaneously (each tab is a separate request). Click the <strong>+</strong> button to add a new tab, or click <strong>x</strong> to close one. When you send a captured request to the Repeater from the traffic view, it opens in a new tab pre-filled with the original method, URL, headers, and body.</p>
+
+    <h2 id="proxy-controls">Proxy Controls</h2>
+    <p>The top toolbar includes two proxy control buttons:</p>
+    <ul>
+      <li><strong>Running :8082</strong> -- shows the current proxy status and port. Click to stop or start the proxy directly from the web UI. The status indicator turns green when the proxy is running.</li>
+      <li><strong>System Proxy</strong> -- enables or disables macOS system proxy routing. When enabled, all system HTTP/HTTPS traffic is routed through Laurel Proxy automatically. This is equivalent to running <code>laurel-proxy proxy-on</code> from the CLI.</li>
+    </ul>
+    <p>Proxy state is synchronized between the web UI and CLI in real-time. If you stop the proxy from the CLI, the web UI updates within a second, and vice versa.</p>
+    <p>The <strong>Clear</strong> button deletes all captured traffic from the database. This is the same as running <code>laurel-proxy clear</code> from the CLI.</p>
+
+    <h2 id="real-time-streaming">Real-time Streaming</h2>
+    <p>The web UI uses Server-Sent Events (SSE) to stream new requests in real-time as they pass through the proxy. You do not need to refresh the page -- new requests appear at the top of the list automatically.</p>
+    <p>Key behaviors:</p>
+    <ul>
+      <li><strong>Auto-scroll</strong> -- when viewing the top of the list, new requests scroll into view automatically</li>
+      <li><strong>Historical data</strong> -- previously captured requests load automatically when you open the page</li>
+      <li><strong>Connection recovery</strong> -- if the SSE connection drops (e.g., proxy restart), the UI reconnects automatically</li>
+      <li><strong>Event batching</strong> -- SSE events are buffered for 100ms before flushing to prevent overwhelming the UI during traffic bursts</li>
+    </ul>
+
+    <h2 id="keyboard-shortcuts">Keyboard Shortcuts</h2>
+    <table>
+      <thead><tr><th>Shortcut</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><code>Cmd+K</code></td><td>Focus the search bar</td></tr>
+        <tr><td><code>Escape</code></td><td>Close the detail panel or clear the search</td></tr>
+      </tbody>
+    </table>
 
     <h2 id="related">Related</h2>
     <ul>
       <li><a href={`${base}docs/getting-started`}>Getting Started</a> - Install and capture your first request</li>
       <li><a href={`${base}docs/api`}>REST API</a> - The API powering the web dashboard</li>
       <li><a href={`${base}docs/https`}>HTTPS Interception</a> - Capture HTTPS traffic in the UI</li>
+      <li><a href={`${base}docs/cli`}>CLI Reference</a> - Command-line alternative for querying traffic</li>
     </ul>
   </div>
 </DocsLayout>
@@ -54,8 +208,17 @@ open http://127.0.0.1:8081</code></pre>
     color: var(--color-text-primary);
     font-size: 1.25rem;
     font-weight: 700;
-    margin-top: 2rem;
+    margin-top: 2.5rem;
     margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .prose-custom h3 {
+    color: var(--color-text-primary);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
   }
   .prose-custom p {
     margin-bottom: 1rem;
@@ -81,14 +244,23 @@ open http://127.0.0.1:8081</code></pre>
     font-family: var(--font-mono);
     font-size: 0.8125rem;
   }
-  .prose-custom ul {
-    list-style: disc;
+  .prose-custom ul, .prose-custom ol {
     padding-left: 1.5rem;
     margin-bottom: 1rem;
+  }
+  .prose-custom ul {
+    list-style: disc;
+  }
+  .prose-custom ol {
+    list-style: decimal;
   }
   .prose-custom li {
     margin-bottom: 0.5rem;
     line-height: 1.6;
+  }
+  .prose-custom li ul {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
   }
   .prose-custom em {
     color: var(--color-accent);
@@ -96,6 +268,31 @@ open http://127.0.0.1:8081</code></pre>
   }
   .prose-custom strong {
     color: var(--color-text-primary);
+  }
+  .prose-custom table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+  .prose-custom th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 2px solid var(--color-border);
+    color: var(--color-text-primary);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+  .prose-custom td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+  .prose-custom tr:last-child td {
+    border-bottom: none;
   }
   .prose-custom a {
     color: var(--color-accent);
@@ -105,4 +302,81 @@ open http://127.0.0.1:8081</code></pre>
   .prose-custom a:hover {
     color: var(--color-text-primary);
   }
+  .prose-custom .screenshot {
+    width: 100%;
+    max-width: 100%;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    margin: 1rem 0 1.5rem;
+    display: block;
+    cursor: zoom-in;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .prose-custom .screenshot:hover {
+    border-color: var(--color-accent);
+    animation: screenshot-glow 1.5s ease-in-out infinite;
+  }
+  @keyframes screenshot-glow {
+    0%, 100% { box-shadow: 0 0 8px rgba(34, 197, 94, 0.15); }
+    50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.35); }
+  }
 </style>
+
+<div id="lightbox">
+  <img id="lightbox-img" />
+</div>
+
+<style is:global>
+  #lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    pointer-events: none;
+    cursor: zoom-out;
+    transition: background 0.3s ease, backdrop-filter 0.3s ease;
+  }
+  #lightbox.open {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    pointer-events: auto;
+  }
+  #lightbox-img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.6);
+    transform: scale(0.9);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  #lightbox.open #lightbox-img {
+    transform: scale(1);
+    opacity: 1;
+  }
+</style>
+
+<script>
+  const lightbox = document.getElementById('lightbox')!;
+  const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement;
+
+  document.querySelectorAll('.prose-custom .screenshot').forEach(img => {
+    img.addEventListener('click', () => {
+      lightboxImg.src = (img as HTMLImageElement).src;
+      lightbox.classList.add('open');
+    });
+  });
+
+  lightbox.addEventListener('click', () => {
+    lightbox.classList.remove('open');
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') lightbox.classList.remove('open');
+  });
+</script>
+

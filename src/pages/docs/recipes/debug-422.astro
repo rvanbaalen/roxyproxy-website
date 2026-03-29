@@ -4,7 +4,7 @@ import DocsLayout from "../../../layouts/DocsLayout.astro";
 const base = import.meta.env.BASE_URL;
 ---
 
-<DocsLayout title="Find Why My API Returns 422" description="Find why your API returns 422 Unprocessable Entity by capturing and inspecting the request with RoxyProxy. Step-by-step guide for manual debugging and AI-assisted fixes." headings={[
+<DocsLayout title="Find Why My API Returns 422" description="Find why your API returns 422 Unprocessable Entity by capturing and inspecting the request with Laurel Proxy. Step-by-step guide for manual debugging and AI-assisted fixes." headings={[
   { id: "scenario", text: "Scenario", depth: 2 },
   { id: "steps", text: "Steps", depth: 2 },
   { id: "with-your-ai-agent", text: "With Your AI Agent", depth: 2 },
@@ -20,16 +20,16 @@ const base = import.meta.env.BASE_URL;
     <h2 id="steps">Steps</h2>
 
     <p>Start the proxy:</p>
-    <pre><code>roxyproxy start</code></pre>
+    <pre><code>laurel-proxy start</code></pre>
 
-    <p>If the target API uses HTTPS, <a href={`${base}docs/https/`}>trust the CA certificate</a> so RoxyProxy can decrypt the traffic:</p>
-    <pre><code>roxyproxy trust-ca</code></pre>
+    <p>If the target API uses HTTPS, <a href={`${base}docs/https/`}>trust the CA certificate</a> so Laurel Proxy can decrypt the traffic:</p>
+    <pre><code>laurel-proxy trust-ca</code></pre>
 
     <p>Make the API call through the proxy:</p>
     <pre><code>curl -x http://127.0.0.1:8080 https://api.example.com/endpoint</code></pre>
 
     <p>Query for the failed request:</p>
-    <pre><code>roxyproxy requests --status 422 --format agent</code></pre>
+    <pre><code>laurel-proxy requests --status 422 --format agent</code></pre>
     <p>
       The <code>--status 422</code> flag filters to only that status code.
       The <code>--format agent</code> output includes the full response body, so you can read the validation error directly.
@@ -47,7 +47,7 @@ const base = import.meta.env.BASE_URL;
     <p>With the <a href={`${base}docs/agent-plugin/`}>AI Agent Plugin</a>, describe the problem and let your agent trace it:</p>
     <pre><code>You: "My POST to /api/users is returning 422. What's wrong?"
 
-Your agent queries RoxyProxy, finds the request, reads the validation
+Your agent queries Laurel Proxy, finds the request, reads the validation
 error in the response body, and fixes the request payload.</code></pre>
     <p>
       Your agent sees both what you sent and what the server rejected, then updates your code to match the expected schema.

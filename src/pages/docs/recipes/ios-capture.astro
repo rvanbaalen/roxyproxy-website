@@ -4,9 +4,9 @@ import DocsLayout from "../../../layouts/DocsLayout.astro";
 const base = import.meta.env.BASE_URL;
 ---
 
-<DocsLayout title="Capture All Traffic from iOS App" description="Step-by-step guide to capture and inspect all HTTP and HTTPS traffic from your iOS app using RoxyProxy. Configure your device, install the CA certificate, and inspect API requests." headings={[
+<DocsLayout title="Capture All Traffic from iOS App" description="Step-by-step guide to capture and inspect all HTTP and HTTPS traffic from your iOS app using Laurel Proxy. Configure your device, install the CA certificate, and inspect API requests." headings={[
   { id: "scenario", text: "Scenario", depth: 2 },
-  { id: "1-start-roxyproxy-on-your-mac", text: "1. Start RoxyProxy on Your Mac", depth: 2 },
+  { id: "1-start-laurel-proxy-on-your-mac", text: "1. Start Laurel Proxy on Your Mac", depth: 2 },
   { id: "2-configure-ios-proxy-settings", text: "2. Configure iOS Proxy Settings", depth: 2 },
   { id: "3-trust-the-ca-for-https", text: "3. Trust the CA for HTTPS", depth: 2 },
   { id: "4-capture-and-filter-traffic", text: "4. Capture and Filter Traffic", depth: 2 },
@@ -18,11 +18,11 @@ const base = import.meta.env.BASE_URL;
     <h2 id="scenario">Scenario</h2>
     <p>
       You need to inspect what your iOS app is sending over the network.
-      RoxyProxy runs on your Mac and your iPhone routes traffic through it over your local Wi-Fi network.
+      Laurel Proxy runs on your Mac and your iPhone routes traffic through it over your local Wi-Fi network.
     </p>
 
-    <h2 id="1-start-roxyproxy-on-your-mac">1. Start RoxyProxy on Your Mac</h2>
-    <pre><code>roxyproxy start</code></pre>
+    <h2 id="1-start-laurel-proxy-on-your-mac">1. Start Laurel Proxy on Your Mac</h2>
+    <pre><code>laurel-proxy start</code></pre>
     <p>
       Note the network address from the startup output. It will look something like
       <code>your-mac.local</code> or a local IP such as <code>192.168.1.42</code>.
@@ -41,34 +41,34 @@ const base = import.meta.env.BASE_URL;
     </ul>
 
     <h2 id="3-trust-the-ca-for-https">3. Trust the CA for HTTPS</h2>
-    <p>To decrypt HTTPS traffic, install the RoxyProxy CA certificate on your device:</p>
+    <p>To decrypt HTTPS traffic, install the Laurel Proxy CA certificate on your device:</p>
     <ul>
       <li>Open Safari on your iPhone and visit <code>http://your-mac.local:8081/api/ca.crt</code></li>
       <li>Safari will prompt you to install the configuration profile &mdash; tap <strong>Allow</strong></li>
       <li>Go to <strong>Settings &gt; General &gt; VPN &amp; Device Management</strong> and install the downloaded profile</li>
       <li>Then go to <strong>Settings &gt; General &gt; About &gt; Certificate Trust Settings</strong></li>
-      <li>Enable full trust for the RoxyProxy CA certificate</li>
+      <li>Enable full trust for the Laurel Proxy CA certificate</li>
     </ul>
 
     <h2 id="4-capture-and-filter-traffic">4. Capture and Filter Traffic</h2>
     <p>Back on your Mac, tail the live traffic stream:</p>
-    <pre><code>roxyproxy requests --tail</code></pre>
+    <pre><code>laurel-proxy requests --tail</code></pre>
     <p>
       Open your iOS app and use it normally. All HTTP and HTTPS requests will appear in the TUI in real time.
       Use filters to narrow down to what matters:
     </p>
     <pre><code># Filter to your API host
-roxyproxy requests --tail --host api.yourapp.com
+laurel-proxy requests --tail --host api.yourapp.com
 
 # Filter to failed requests only
-roxyproxy requests --tail --failed</code></pre>
+laurel-proxy requests --tail --failed</code></pre>
 
     <h2 id="5-cleanup">5. Cleanup</h2>
     <p>When you are done, remove the proxy configuration and CA profile from your device:</p>
     <ul>
       <li>Go to <strong>Settings &gt; Wi-Fi</strong>, tap your network, set <strong>Configure Proxy</strong> back to <strong>Off</strong></li>
-      <li>Go to <strong>Settings &gt; General &gt; VPN &amp; Device Management</strong> and remove the RoxyProxy profile</li>
-      <li>Go to <strong>Settings &gt; General &gt; About &gt; Certificate Trust Settings</strong> and disable trust for the RoxyProxy CA</li>
+      <li>Go to <strong>Settings &gt; General &gt; VPN &amp; Device Management</strong> and remove the Laurel Proxy profile</li>
+      <li>Go to <strong>Settings &gt; General &gt; About &gt; Certificate Trust Settings</strong> and disable trust for the Laurel Proxy CA</li>
     </ul>
 
     <h2 id="with-your-ai-agent">With Your AI Agent</h2>

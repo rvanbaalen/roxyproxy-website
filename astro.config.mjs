@@ -5,7 +5,7 @@ import posthog from "astro-posthog";
 import pagefind from "astro-pagefind";
 
 export default defineConfig({
-  site: "https://roxyproxy.robinvanbaalen.nl",
+  site: "https://laurelproxy.robinvanbaalen.nl",
   integrations: [
     react(),
     ...(process.env.PUBLIC_POSTHOG_KEY

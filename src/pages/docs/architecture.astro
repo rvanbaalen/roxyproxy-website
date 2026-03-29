@@ -4,8 +4,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 const base = import.meta.env.BASE_URL;
 ---
 
-<DocsLayout title="Architecture" description="RoxyProxy system architecture. SQLite with WAL mode, batched writes, SSE event streaming, and per-domain certificate caching." headings={[
-  { id: "overview", text: "Overview", depth: 2 },
+<DocsLayout title="Architecture" description="Laurel Proxy system architecture. SQLite with WAL mode, batched writes, SSE event streaming, and per-domain certificate caching." headings={[
   { id: "key-design-decisions", text: "Key Design Decisions", depth: 2 },
   { id: "data-storage", text: "Data Storage", depth: 2 },
   { id: "file-paths", text: "File Paths", depth: 2 },
@@ -14,32 +13,9 @@ const base = import.meta.env.BASE_URL;
 ]}>
   <div class="prose-custom">
     <p>
-      RoxyProxy is a single Node.js process that runs the intercepting proxy, REST API,
+      Laurel Proxy is a single Node.js process that runs the intercepting proxy, REST API,
       web UI, and background cleanup -- all on two ports.
     </p>
-
-    <h2 id="overview">Overview</h2>
-    <pre class="diagram"><code>                    ┌─────────────────────────────────────────┐
-                    │              RoxyProxy                   │
-                    │                                         │
-  HTTP/S traffic    │  ┌──────────────┐    ┌──────────────┐  │
- ─────────────────► │  │ Proxy Server │───►│  EventManager │  │
-                    │  │    :8080     │    │  (pub/sub)    │──┼──► SSE to Web UI
-                    │  └──────┬───────┘    └──────────────┘  │
-                    │         │                               │
-                    │         ▼                               │
-                    │  ┌──────────────┐    ┌──────────────┐  │
-                    │  │   SQLite DB  │◄───│   Cleanup    │  │
-                    │  │  (batched)   │    │  (5 min)     │  │
-                    │  └──────┬───────┘    └──────────────┘  │
-                    │         │                               │
-                    │         ▼                               │
-                    │  ┌──────────────┐    ┌──────────────┐  │
-                    │  │  REST API    │    │   Web UI     │  │
-                    │  │  /api/*      │    │  (React)     │  │
-                    │  │    :8081     │    │    :8081     │  │
-                    │  └──────────────┘    └──────────────┘  │
-                    └─────────────────────────────────────────┘</code></pre>
 
     <h2 id="key-design-decisions">Key Design Decisions</h2>
     <ul>
@@ -53,7 +29,7 @@ const base = import.meta.env.BASE_URL;
 
     <h2 id="data-storage">Data Storage</h2>
     <p>
-      All data is stored in <code>~/.roxyproxy/data.db</code> (SQLite). The <code>requests</code> table
+      All data is stored in <code>~/.laurel-proxy/data.db</code> (SQLite). The <code>requests</code> table
       has indexes on <code>timestamp</code>, <code>host</code>, <code>status</code>, <code>path</code>,
       and <code>content_type</code> for fast querying.
     </p>
@@ -72,23 +48,23 @@ const base = import.meta.env.BASE_URL;
       </thead>
       <tbody>
         <tr>
-          <td><code>~/.roxyproxy/data.db</code></td>
+          <td><code>~/.laurel-proxy/data.db</code></td>
           <td>SQLite database</td>
         </tr>
         <tr>
-          <td><code>~/.roxyproxy/config.json</code></td>
+          <td><code>~/.laurel-proxy/config.json</code></td>
           <td>Configuration file (optional)</td>
         </tr>
         <tr>
-          <td><code>~/.roxyproxy/ca/ca.crt</code></td>
+          <td><code>~/.laurel-proxy/ca/ca.crt</code></td>
           <td>Root CA certificate</td>
         </tr>
         <tr>
-          <td><code>~/.roxyproxy/ca/ca.key</code></td>
+          <td><code>~/.laurel-proxy/ca/ca.key</code></td>
           <td>Root CA private key</td>
         </tr>
         <tr>
-          <td><code>~/.roxyproxy/pid</code></td>
+          <td><code>~/.laurel-proxy/pid</code></td>
           <td>Process ID file</td>
         </tr>
       </tbody>
@@ -104,7 +80,7 @@ const base = import.meta.env.BASE_URL;
 │   ├── commands/       # Individual CLI commands
 │   └── system-proxy.ts # macOS system proxy & CA management
 ├── server/             # Proxy server, API, SSL, events
-│   ├── index.ts        # RoxyProxyServer orchestrator
+│   ├── index.ts        # LaurelProxyServer orchestrator
 │   ├── proxy.ts        # HTTP/HTTPS intercepting proxy
 │   ├── api.ts          # Express REST API + SSE
 │   ├── ssl.ts          # CA generation & per-domain cert caching
@@ -152,10 +128,6 @@ const base = import.meta.env.BASE_URL;
     font-size: 0.8125rem;
     line-height: 1.6;
     color: var(--color-text-secondary);
-  }
-  .prose-custom pre.diagram {
-    font-size: 0.6875rem;
-    line-height: 1.4;
   }
   .prose-custom code:not(pre code) {
     background: var(--color-bg-secondary);

@@ -29,7 +29,7 @@ const statusResponse = `{
 }`;
 ---
 
-<DocsLayout title="REST API Reference" description="RoxyProxy REST API reference. Query captured HTTP traffic, replay requests, manage the proxy, and stream real-time events via SSE. Programmatic access for AI agents and automation." headings={[
+<DocsLayout title="REST API Reference" description="Laurel Proxy REST API reference. Query captured HTTP traffic, replay requests, manage the proxy, and stream real-time events via SSE. Programmatic access for AI agents and automation." headings={[
   { id: "get-api-requests", text: "GET /api/requests", depth: 2 },
   { id: "get-api-requests-id", text: "GET /api/requests/:id", depth: 2 },
   { id: "delete-api-requests", text: "DELETE /api/requests", depth: 2 },
@@ -96,7 +96,7 @@ curl "http://127.0.0.1:8081/api/requests?host=example.com&status=200&limit=50"</
 
     <h2 id="get-api-ca-crt">GET /api/ca.crt</h2>
     <p>
-      Download the RoxyProxy CA certificate. Useful for installing on mobile devices --
+      Download the Laurel Proxy CA certificate. Useful for installing on mobile devices --
       open this URL in the device's browser to trigger a certificate install prompt.
     </p>
     <pre><code>curl -O http://127.0.0.1:8081/api/ca.crt</code></pre>

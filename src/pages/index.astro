@@ -14,15 +14,15 @@ const capabilities = [
     scenario: "Debugging a flaky React dashboard",
     title: "Intercept Every Request",
     description:
-      "Your dashboard makes 47 API calls on load. Three of them fail intermittently. RoxyProxy captures every request with full headers, body, and timing. Filter by status, method, or path to find the culprit in seconds.",
+      "Your dashboard makes 47 API calls on load. Three of them fail intermittently. Laurel Proxy captures every request with full headers, body, and timing. Filter by status, method, or path to find the culprit in seconds.",
     docsLink: "docs/cli/",
     docsLabel: "CLI Reference",
     lines: [
-      { type: "prompt" as const, text: "$ roxyproxy start" },
+      { type: "prompt" as const, text: "$ laurel-proxy start" },
       { type: "output" as const, text: "Proxy listening on :9229" },
       { type: "output" as const, text: "Web UI at http://localhost:9230" },
       { type: "output" as const, text: "" },
-      { type: "prompt" as const, text: "$ roxyproxy requests --status 500" },
+      { type: "prompt" as const, text: "$ laurel-proxy requests --status 500" },
       { type: "highlight" as const, text: "POST /api/dashboard/widgets  500  422ms" },
       { type: "highlight" as const, text: "POST /api/dashboard/widgets  500  891ms" },
       { type: "output" as const, text: "GET  /api/user/profile       200   34ms" },
@@ -32,15 +32,15 @@ const capabilities = [
     scenario: "Reverse-engineering a mobile app",
     title: "HTTPS Interception",
     description:
-      "That iOS app doesn't have public API docs. Point your device at RoxyProxy, trust the CA, and watch every encrypted request in cleartext. See exactly what endpoints it hits, what tokens it sends, what data it returns.",
+      "That iOS app doesn't have public API docs. Point your device at Laurel Proxy, trust the CA, and watch every encrypted request in cleartext. See exactly what endpoints it hits, what tokens it sends, what data it returns.",
     docsLink: "docs/https/",
     docsLabel: "HTTPS Setup",
     lines: [
-      { type: "prompt" as const, text: "$ roxyproxy start --https" },
+      { type: "prompt" as const, text: "$ laurel-proxy start --https" },
       { type: "output" as const, text: "HTTPS interception enabled" },
-      { type: "output" as const, text: "CA cert: ~/.roxyproxy/ca.pem" },
+      { type: "output" as const, text: "CA cert: ~/.laurel-proxy/ca.pem" },
       { type: "output" as const, text: "" },
-      { type: "prompt" as const, text: "$ roxyproxy requests --host api.example.app" },
+      { type: "prompt" as const, text: "$ laurel-proxy requests --host api.example.app" },
       { type: "output" as const, text: "GET  /v2/feed       200  Bearer eyJ..." },
       { type: "output" as const, text: "POST /v2/analytics  201  {device_id:...}" },
       { type: "highlight" as const, text: 'GET  /v2/premium    403  {error: "not_subscribed"}' },
@@ -50,12 +50,12 @@ const capabilities = [
     scenario: "Your AI agent debugs a 422 error",
     title: "AI Agent Integration",
     description:
-      'Tell your AI agent "the user update endpoint returns 422." It queries RoxyProxy, inspects the request body, sees the validation error, fixes your code, replays the request, and confirms the fix. You watch.',
+      'Tell your AI agent "the user update endpoint returns 422." It queries Laurel Proxy, inspects the request body, sees the validation error, fixes your code, replays the request, and confirms the fix. You watch.',
     docsLink: "docs/agent-plugin/",
     docsLabel: "AI Agent Plugin",
     lines: [
       { type: "comment" as const, text: "# AI agent queries captured traffic" },
-      { type: "prompt" as const, text: "$ roxyproxy requests --status 422 --format agent" },
+      { type: "prompt" as const, text: "$ laurel-proxy requests --status 422 --format agent" },
       { type: "output" as const, text: "{" },
       { type: "output" as const, text: '  "method": "PUT", "path": "/api/users/42",' },
       { type: "output" as const, text: "  \"status\": 422," },
@@ -63,7 +63,7 @@ const capabilities = [
       { type: "output" as const, text: "}" },
       { type: "output" as const, text: "" },
       { type: "comment" as const, text: "# Agent fixes code, replays request" },
-      { type: "prompt" as const, text: "$ roxyproxy replay 1847" },
+      { type: "prompt" as const, text: "$ laurel-proxy replay 1847" },
       { type: "highlight" as const, text: "PUT /api/users/42  → 200 OK ✓" },
     ],
   },
@@ -75,12 +75,12 @@ const capabilities = [
     docsLink: "docs/api/",
     docsLabel: "API Reference",
     lines: [
-      { type: "prompt" as const, text: "$ roxyproxy request 1847 --verbose" },
+      { type: "prompt" as const, text: "$ laurel-proxy request 1847 --verbose" },
       { type: "output" as const, text: "PUT /api/users/42" },
       { type: "output" as const, text: "Content-Type: application/json" },
       { type: "output" as const, text: '{"email": "bad@@email", "name": "Robin"}' },
       { type: "output" as const, text: "" },
-      { type: "prompt" as const, text: "$ roxyproxy replay 1847 --target localhost:3000" },
+      { type: "prompt" as const, text: "$ laurel-proxy replay 1847 --target localhost:3000" },
       { type: "output" as const, text: "PUT /api/users/42 →" },
       { type: "highlight" as const, text: "200 OK (12ms) ✓" },
     ],
@@ -89,7 +89,7 @@ const capabilities = [
 ---
 
 <Base
-  title="RoxyProxy — See every HTTP request. Debug anything."
+  title="Laurel Proxy — See every HTTP request. Debug anything."
   description="Free, open source HTTP/HTTPS intercepting proxy. Capture, inspect, and replay traffic. Debug web APIs, reverse-engineer mobile apps, or let your AI agent query everything."
 >
   <Nav />

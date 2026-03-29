@@ -4,7 +4,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 const base = import.meta.env.BASE_URL;
 ---
 
-<DocsLayout title="CLI Reference" description="Complete CLI reference for RoxyProxy. All commands, flags, filter aliases, and output formats including --format agent for AI." headings={[
+<DocsLayout title="CLI Reference" description="Complete CLI reference for Laurel Proxy. All commands, flags, filter aliases, and output formats including --format agent for AI." headings={[
   { id: "start", text: "start", depth: 2 },
   { id: "stop", text: "stop", depth: 2 },
   { id: "status", text: "status", depth: 2 },
@@ -24,40 +24,40 @@ const base = import.meta.env.BASE_URL;
 ]}>
   <div class="prose-custom">
     <p>
-      RoxyProxy is controlled entirely from the command line. Running <code>roxyproxy</code> with no arguments
+      Laurel Proxy is controlled entirely from the command line. Running <code>laurel-proxy</code> with no arguments
       launches an interactive terminal menu. All commands follow the pattern:
     </p>
-    <pre><code>roxyproxy &lt;command&gt; [options]</code></pre>
+    <pre><code>laurel-proxy &lt;command&gt; [options]</code></pre>
 
     <!-- start -->
     <h2 id="start">start</h2>
     <p>Start the proxy server in the foreground.</p>
-    <pre><code>roxyproxy start [options]</code></pre>
+    <pre><code>laurel-proxy start [options]</code></pre>
     <table>
       <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
         <tr><td><code>--port &lt;number&gt;</code></td><td><code>8080</code></td><td>Proxy listening port</td></tr>
         <tr><td><code>--ui-port &lt;number&gt;</code></td><td><code>8081</code></td><td>Web UI and API port</td></tr>
-        <tr><td><code>--db-path &lt;path&gt;</code></td><td><code>~/.roxyproxy/data.db</code></td><td>SQLite database location</td></tr>
+        <tr><td><code>--db-path &lt;path&gt;</code></td><td><code>~/.laurel-proxy/data.db</code></td><td>SQLite database location</td></tr>
       </tbody>
     </table>
     <pre><code># Default ports
-roxyproxy start
+laurel-proxy start
 
 # Custom ports
-roxyproxy start --port 9000 --ui-port 9001
+laurel-proxy start --port 9000 --ui-port 9001
 
 # Custom database location
-roxyproxy start --db-path /tmp/proxy.db</code></pre>
+laurel-proxy start --db-path /tmp/proxy.db</code></pre>
     <p>
-      The process writes its PID to <code>~/.roxyproxy/pid</code> and responds to
+      The process writes its PID to <code>~/.laurel-proxy/pid</code> and responds to
       <code>SIGINT</code>/<code>SIGTERM</code> for graceful shutdown.
     </p>
 
     <!-- stop -->
     <h2 id="stop">stop</h2>
     <p>Stop the running proxy server.</p>
-    <pre><code>roxyproxy stop [options]</code></pre>
+    <pre><code>laurel-proxy stop [options]</code></pre>
     <table>
       <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
@@ -65,20 +65,20 @@ roxyproxy start --db-path /tmp/proxy.db</code></pre>
       </tbody>
     </table>
     <p>Sends a graceful shutdown request via the API. Falls back to <code>SIGTERM</code> via the PID file if the API is unreachable.</p>
-    <pre><code>roxyproxy stop
-roxyproxy stop --ui-port 9001</code></pre>
+    <pre><code>laurel-proxy stop
+laurel-proxy stop --ui-port 9001</code></pre>
 
     <!-- status -->
     <h2 id="status">status</h2>
     <p>Show proxy status.</p>
-    <pre><code>roxyproxy status [options]</code></pre>
+    <pre><code>laurel-proxy status [options]</code></pre>
     <table>
       <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
         <tr><td><code>--ui-port &lt;number&gt;</code></td><td><code>8081</code></td><td>API port to query</td></tr>
       </tbody>
     </table>
-    <pre><code>roxyproxy status</code></pre>
+    <pre><code>laurel-proxy status</code></pre>
     <p>Example output:</p>
     <pre><code>Status     Running
 Proxy      port 8080
@@ -87,8 +87,8 @@ DB Size    3.2MB</code></pre>
 
     <!-- requests -->
     <h2 id="requests">requests</h2>
-    <p>Query captured requests from the database. This is the most powerful command in RoxyProxy.</p>
-    <pre><code>roxyproxy requests [options]</code></pre>
+    <p>Query captured requests from the database. This is the most powerful command in Laurel Proxy.</p>
+    <pre><code>laurel-proxy requests [options]</code></pre>
     <table>
       <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
@@ -102,7 +102,7 @@ DB Size    3.2MB</code></pre>
         <tr><td><code>--format &lt;format&gt;</code></td><td><code>table</code></td><td>Output format: <code>table</code>, <code>json</code>, or <code>agent</code></td></tr>
         <tr><td><code>--tail</code></td><td></td><td>Stream new requests in real-time (interactive TUI)</td></tr>
         <tr><td><code>--ui-port &lt;number&gt;</code></td><td><code>8081</code></td><td>UI/API port (used with <code>--tail</code>)</td></tr>
-        <tr><td><code>--db-path &lt;path&gt;</code></td><td><code>~/.roxyproxy/data.db</code></td><td>Database location</td></tr>
+        <tr><td><code>--db-path &lt;path&gt;</code></td><td><code>~/.laurel-proxy/data.db</code></td><td>Database location</td></tr>
       </tbody>
     </table>
 
@@ -127,48 +127,48 @@ DB Size    3.2MB</code></pre>
 
     <h3 id="examples">Examples</h3>
     <pre><code># All 500 errors
-roxyproxy requests --status 500
+laurel-proxy requests --status 500
 
 # POST requests to a specific host
-roxyproxy requests --host api.example.com --method POST
+laurel-proxy requests --host api.example.com --method POST
 
 # Search URLs
-roxyproxy requests --search "/api/v2"
+laurel-proxy requests --search "/api/v2"
 
 # Limit results
-roxyproxy requests --format table --limit 20
+laurel-proxy requests --format table --limit 20
 
 # Time-bounded query
-roxyproxy requests --since "2024-01-15T00:00:00Z" --until "2024-01-16T00:00:00Z"
+laurel-proxy requests --since "2024-01-15T00:00:00Z" --until "2024-01-16T00:00:00Z"
 
 # JSON for piping to jq
-roxyproxy requests --format json --host stripe.com | jq '.data[].url'
+laurel-proxy requests --format json --host stripe.com | jq '.data[].url'
 
 # LLM-optimized output
-roxyproxy requests --format agent --failed
+laurel-proxy requests --format agent --failed
 
 # Only failed requests from the last hour
-roxyproxy requests --failed --last-hour
+laurel-proxy requests --failed --last-hour
 
 # Slow requests from the last day
-roxyproxy requests --slow 1000 --last-day
+laurel-proxy requests --slow 1000 --last-day
 
 # Combine aliases with other filters
-roxyproxy requests --failed --host api.example.com --last-hour</code></pre>
+laurel-proxy requests --failed --host api.example.com --last-hour</code></pre>
 
     <h3 id="real-time-tailing">Real-time tailing</h3>
     <p>The <code>--tail</code> flag launches an interactive terminal UI that streams new requests as they arrive:</p>
     <pre><code># Tail all traffic (auto-starts proxy + system proxy if needed)
-roxyproxy requests --tail
+laurel-proxy requests --tail
 
 # Tail with filters
-roxyproxy requests --host todoist.com --tail
-roxyproxy requests --status 500 --tail
-roxyproxy requests --method POST --host api.example.com --tail</code></pre>
+laurel-proxy requests --host todoist.com --tail
+laurel-proxy requests --status 500 --tail
+laurel-proxy requests --method POST --host api.example.com --tail</code></pre>
     <p>What <code>--tail</code> does automatically:</p>
     <ol>
       <li><strong>Starts the proxy</strong> if it is not already running</li>
-      <li><strong>Enables the macOS system proxy</strong> so all traffic routes through RoxyProxy</li>
+      <li><strong>Enables the macOS system proxy</strong> so all traffic routes through Laurel Proxy</li>
       <li>Opens an interactive TUI with arrow-key navigation</li>
       <li>On quit (<code>Ctrl+C</code>), <strong>disables the system proxy</strong> and stops the proxy it started</li>
     </ol>
@@ -190,33 +190,33 @@ roxyproxy requests --method POST --host api.example.com --tail</code></pre>
     <!-- request -->
     <h2 id="request">request</h2>
     <p>Show full details of a single captured request, including headers and bodies.</p>
-    <pre><code>roxyproxy request &lt;id&gt; [options]</code></pre>
+    <pre><code>laurel-proxy request &lt;id&gt; [options]</code></pre>
     <table>
       <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
         <tr><td><code>--format &lt;format&gt;</code></td><td><code>json</code></td><td>Output format: <code>json</code> or <code>table</code></td></tr>
-        <tr><td><code>--db-path &lt;path&gt;</code></td><td><code>~/.roxyproxy/data.db</code></td><td>Database location</td></tr>
+        <tr><td><code>--db-path &lt;path&gt;</code></td><td><code>~/.laurel-proxy/data.db</code></td><td>Database location</td></tr>
       </tbody>
     </table>
-    <pre><code>roxyproxy request a1b2c3d4-e5f6-7890-abcd-ef1234567890
-roxyproxy request a1b2c3d4-e5f6-7890-abcd-ef1234567890 --format table</code></pre>
+    <pre><code>laurel-proxy request a1b2c3d4-e5f6-7890-abcd-ef1234567890
+laurel-proxy request a1b2c3d4-e5f6-7890-abcd-ef1234567890 --format table</code></pre>
 
     <!-- clear -->
     <h2 id="clear">clear</h2>
     <p>Delete all captured traffic from the database.</p>
-    <pre><code>roxyproxy clear [options]</code></pre>
+    <pre><code>laurel-proxy clear [options]</code></pre>
     <table>
       <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
         <tr><td><code>--ui-port &lt;number&gt;</code></td><td><code>8081</code></td><td>API port</td></tr>
       </tbody>
     </table>
-    <pre><code>roxyproxy clear</code></pre>
+    <pre><code>laurel-proxy clear</code></pre>
 
     <!-- trust-ca -->
     <h2 id="trust-ca">trust-ca</h2>
-    <p>Install and trust the RoxyProxy CA certificate for HTTPS interception.</p>
-    <pre><code>roxyproxy trust-ca [options]</code></pre>
+    <p>Install and trust the Laurel Proxy CA certificate for HTTPS interception.</p>
+    <pre><code>laurel-proxy trust-ca [options]</code></pre>
     <table>
       <thead><tr><th>Option</th><th>Description</th></tr></thead>
       <tbody>
@@ -224,15 +224,15 @@ roxyproxy request a1b2c3d4-e5f6-7890-abcd-ef1234567890 --format table</code></pr
       </tbody>
     </table>
     <pre><code># Interactive (prompts for sudo password)
-roxyproxy trust-ca
+laurel-proxy trust-ca
 
 # Non-interactive (CI, scripts)
-roxyproxy trust-ca --no-interactive</code></pre>
+laurel-proxy trust-ca --no-interactive</code></pre>
 
     <!-- uninstall-ca -->
     <h2 id="uninstall-ca">uninstall-ca</h2>
-    <p>Remove the RoxyProxy CA certificate from the system trust store.</p>
-    <pre><code>roxyproxy uninstall-ca [options]</code></pre>
+    <p>Remove the Laurel Proxy CA certificate from the system trust store.</p>
+    <pre><code>laurel-proxy uninstall-ca [options]</code></pre>
     <table>
       <thead><tr><th>Option</th><th>Description</th></tr></thead>
       <tbody>
@@ -240,10 +240,10 @@ roxyproxy trust-ca --no-interactive</code></pre>
       </tbody>
     </table>
     <pre><code># Interactive (prompts for sudo password)
-roxyproxy uninstall-ca
+laurel-proxy uninstall-ca
 
 # Non-interactive
-roxyproxy uninstall-ca --no-interactive</code></pre>
+laurel-proxy uninstall-ca --no-interactive</code></pre>
     <p>
       On macOS, removes via <code>security remove-trusted-cert</code>. On Linux, removes from
       <code>/usr/local/share/ca-certificates/</code> and refreshes the store. Only available when
@@ -252,8 +252,8 @@ roxyproxy uninstall-ca --no-interactive</code></pre>
 
     <!-- proxy-on -->
     <h2 id="proxy-on">proxy-on</h2>
-    <p>Configure RoxyProxy as the system-wide HTTP/HTTPS proxy. <strong>macOS only.</strong></p>
-    <pre><code>roxyproxy proxy-on [options]</code></pre>
+    <p>Configure Laurel Proxy as the system-wide HTTP/HTTPS proxy. <strong>macOS only.</strong></p>
+    <pre><code>laurel-proxy proxy-on [options]</code></pre>
     <table>
       <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
@@ -261,20 +261,20 @@ roxyproxy uninstall-ca --no-interactive</code></pre>
         <tr><td><code>--service &lt;name&gt;</code></td><td>auto-detected</td><td>Network service (e.g., "Wi-Fi", "Ethernet")</td></tr>
       </tbody>
     </table>
-    <pre><code>roxyproxy proxy-on
-roxyproxy proxy-on --port 9000 --service "Wi-Fi"</code></pre>
+    <pre><code>laurel-proxy proxy-on
+laurel-proxy proxy-on --port 9000 --service "Wi-Fi"</code></pre>
 
     <!-- proxy-off -->
     <h2 id="proxy-off">proxy-off</h2>
-    <p>Remove RoxyProxy from system proxy settings. <strong>macOS only.</strong></p>
-    <pre><code>roxyproxy proxy-off [options]</code></pre>
+    <p>Remove Laurel Proxy from system proxy settings. <strong>macOS only.</strong></p>
+    <pre><code>laurel-proxy proxy-off [options]</code></pre>
     <table>
       <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
       <tbody>
         <tr><td><code>--service &lt;name&gt;</code></td><td>auto-detected</td><td>Network service</td></tr>
       </tbody>
     </table>
-    <pre><code>roxyproxy proxy-off</code></pre>
+    <pre><code>laurel-proxy proxy-off</code></pre>
 
     <h2 id="related">Related</h2>
     <ul>

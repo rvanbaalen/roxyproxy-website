@@ -4,7 +4,7 @@ import DocsLayout from "../../../layouts/DocsLayout.astro";
 const base = import.meta.env.BASE_URL;
 ---
 
-<DocsLayout title="Debug a Failing Webhook" description="Debug failing Stripe and Twilio webhooks by capturing and inspecting HTTP traffic with RoxyProxy and your AI agent." headings={[
+<DocsLayout title="Debug a Failing Webhook" description="Debug failing Stripe and Twilio webhooks by capturing and inspecting HTTP traffic with Laurel Proxy and your AI agent." headings={[
   { id: "scenario", text: "Scenario", depth: 2 },
   { id: "prerequisites", text: "Prerequisites", depth: 2 },
   { id: "manual-steps", text: "Manual Steps", depth: 2 },
@@ -20,7 +20,7 @@ const base = import.meta.env.BASE_URL;
 
     <h2 id="prerequisites">Prerequisites</h2>
     <ul>
-      <li>RoxyProxy installed (<code>npx @rvanbaalen/roxyproxy</code>)</li>
+      <li>Laurel Proxy installed (<code>npx laurel-proxy</code>)</li>
       <li>Your webhook endpoint running locally</li>
       <li>A way to trigger the webhook (Stripe CLI, Twilio console, etc.)</li>
     </ul>
@@ -28,12 +28,12 @@ const base = import.meta.env.BASE_URL;
     <h2 id="manual-steps">Manual Steps</h2>
 
     <p>Start tailing requests filtered to the webhook provider:</p>
-    <pre><code>roxyproxy requests --tail --host stripe.com</code></pre>
+    <pre><code>laurel-proxy requests --tail --host stripe.com</code></pre>
 
     <p>Trigger the webhook from the provider dashboard or CLI. You will see the request appear in the TUI in real time.</p>
 
     <p>Once you spot the failing request, query for it directly:</p>
-    <pre><code>roxyproxy requests --host stripe.com --failed --format agent</code></pre>
+    <pre><code>laurel-proxy requests --host stripe.com --failed --format agent</code></pre>
     <p>
       The <code>--failed</code> flag filters to non-2xx responses. The <code>--format agent</code> flag outputs
       the full request and response bodies as structured text, making it easy to read the exact error your server returned.
@@ -50,7 +50,7 @@ const base = import.meta.env.BASE_URL;
     <p>If you have the <a href={`${base}docs/agent-plugin/`}>AI Agent Plugin</a> installed, you can skip the manual inspection entirely:</p>
     <pre><code>You: "The Stripe webhook at /api/webhooks/stripe is failing. Debug it."
 
-Your agent queries: roxyproxy requests --host stripe.com --failed --format agent
+Your agent queries: laurel-proxy requests --host stripe.com --failed --format agent
 The agent finds the 422 response, reads the error body, identifies the
 schema mismatch, and fixes the code.</code></pre>
     <p>

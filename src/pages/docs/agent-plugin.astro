@@ -4,7 +4,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 const base = import.meta.env.BASE_URL;
 ---
 
-<DocsLayout title="AI Agent Plugin" description="Install the RoxyProxy AI agent plugin for automated HTTP debugging. Your AI coding agent can query captured traffic, inspect API requests, and replay requests to verify fixes." headings={[
+<DocsLayout title="AI Agent Plugin" description="Install the Laurel Proxy AI agent plugin for automated HTTP debugging. Your AI coding agent can query captured traffic, inspect API requests, and replay requests to verify fixes." headings={[
   { id: "installation", text: "Installation", depth: 2 },
   { id: "what-it-provides", text: "What It Provides", depth: 2 },
   { id: "example-workflows", text: "Example Workflows", depth: 2 },
@@ -15,31 +15,31 @@ const base = import.meta.env.BASE_URL;
   { id: "related", text: "Related", depth: 2 },
 ]}>
   <div class="prose-custom">
-    <p>RoxyProxy ships with an AI agent plugin. Once installed, your AI agent knows all RoxyProxy commands, filters, API endpoints, and common debugging workflows -- so you can ask it to inspect traffic in natural language.</p>
+    <p>Laurel Proxy ships with an AI agent plugin. Once installed, your AI agent knows all Laurel Proxy commands, filters, API endpoints, and common debugging workflows -- so you can ask it to inspect traffic in natural language.</p>
 
     <h2 id="installation">Installation</h2>
     <p>The plugin is currently available for <strong>Claude Code</strong>. Add it from the Claude Code plugin marketplace:</p>
-    <pre><code>/plugin marketplace add rvanbaalen/roxyproxy</code></pre>
+    <pre><code>/plugin marketplace add rvanbaalen/laurelproxy</code></pre>
     <p>Then open the plugin browser and install it:</p>
     <pre><code>/plugin</code></pre>
-    <p>Support for other AI coding agents (Cursor, Copilot, Windsurf) is planned. In the meantime, any agent can use RoxyProxy directly via the <a href={`${base}docs/cli/`}>CLI</a> and <a href={`${base}docs/api/`}>REST API</a>.</p>
+    <p>Support for other AI coding agents (Cursor, Copilot, Windsurf) is planned. In the meantime, any agent can use Laurel Proxy directly via the <a href={`${base}docs/cli/`}>CLI</a> and <a href={`${base}docs/api/`}>REST API</a>.</p>
 
     <h2 id="what-it-provides">What It Provides</h2>
     <p>After installation, your AI agent can help you:</p>
     <ul>
       <li>Start and stop the proxy and configure <a href={`${base}docs/https/`}>HTTPS interception</a></li>
-      <li>Write <code>roxyproxy requests</code> queries with the right filter flags</li>
+      <li>Write <code>laurel-proxy requests</code> queries with the right filter flags</li>
       <li>Use the <a href={`${base}docs/api/`}>REST API</a> to query captured traffic programmatically</li>
       <li>Debug failing API calls by inspecting captured request/response pairs</li>
       <li>Set up system-wide proxy routing on macOS</li>
     </ul>
-    <p>Just ask your AI agent anything about intercepting or inspecting HTTP traffic and it will use its knowledge of RoxyProxy to help.</p>
+    <p>Just ask your AI agent anything about intercepting or inspecting HTTP traffic and it will use its knowledge of Laurel Proxy to help.</p>
 
     <h2 id="example-workflows">Example Workflows</h2>
 
     <h3 id="debug-a-failing-webhook">Debug a failing webhook</h3>
     <p>Tell your AI agent something like: <em>"The Stripe webhook is failing. Debug it."</em></p>
-    <p>The agent will start the proxy if needed, query RoxyProxy for recent requests matching the webhook endpoint, inspect the request headers and response body, and pinpoint what went wrong -- all without you writing a single filter command. See the full <a href={`${base}docs/recipes/debug-webhook/`}>Debug a Failing Webhook recipe</a> for the step-by-step walkthrough.</p>
+    <p>The agent will start the proxy if needed, query Laurel Proxy for recent requests matching the webhook endpoint, inspect the request headers and response body, and pinpoint what went wrong -- all without you writing a single filter command. See the full <a href={`${base}docs/recipes/debug-webhook/`}>Debug a Failing Webhook recipe</a> for the step-by-step walkthrough.</p>
 
     <h3 id="find-why-your-api-returns-422">Find why your API returns 422</h3>
     <p>Ask: <em>"Why is my API returning 422?"</em></p>
@@ -51,7 +51,7 @@ const base = import.meta.env.BASE_URL;
 
     <h2 id="agent-output-mode">Agent Output Mode</h2>
     <p>For optimal AI consumption, the CLI supports a <code>--format agent</code> output mode. This produces structured output that any LLM can parse efficiently when querying traffic programmatically — it works with Claude Code, Cursor, Copilot, or any other AI agent. Use it when you want your agent to process large amounts of captured traffic:</p>
-    <pre><code>roxyproxy requests --format agent --host api.example.com</code></pre>
+    <pre><code>laurel-proxy requests --format agent --host api.example.com</code></pre>
 
     <h2 id="related">Related</h2>
     <ul>

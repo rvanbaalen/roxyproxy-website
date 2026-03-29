@@ -4,7 +4,7 @@
 
 <div class="group relative inline-flex items-center gap-3 bg-bg-secondary border border-border rounded-lg px-5 py-3 font-mono text-sm md:text-base">
   <span class="text-text-muted select-none">$</span>
-  <code class="text-accent">npx @rvanbaalen/roxyproxy</code>
+  <code class="text-accent">npx laurel-proxy</code>
   <button
     id="copy-btn"
     class="text-text-muted hover:text-text-primary transition-colors ml-2"
@@ -26,7 +26,7 @@
   const copyIcon = document.getElementById("copy-icon");
   const checkIcon = document.getElementById("check-icon");
   btn?.addEventListener("click", () => {
-    navigator.clipboard.writeText("npx @rvanbaalen/roxyproxy");
+    navigator.clipboard.writeText("npx laurel-proxy");
     copyIcon?.classList.add("hidden");
     checkIcon?.classList.remove("hidden");
     setTimeout(() => {

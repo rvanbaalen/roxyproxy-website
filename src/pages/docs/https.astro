@@ -7,7 +7,7 @@ const networkCommands = `ipconfig getifaddr en0    # macOS
 hostname -I | awk '{print $1}'  # Linux`;
 ---
 
-<DocsLayout title="HTTPS Interception" description="Set up HTTPS interception in RoxyProxy with local CA certificates. Includes iOS device inspection and Firefox manual trust." headings={[
+<DocsLayout title="HTTPS Interception" description="Set up HTTPS interception in Laurel Proxy with local CA certificates. Includes iOS device inspection and Firefox manual trust." headings={[
   { id: "how-it-works", text: "How It Works", depth: 2 },
   { id: "setup", text: "Setup", depth: 2 },
   { id: "step-1-start-the-proxy", text: "Step 1: Start the proxy", depth: 3 },
@@ -21,10 +21,10 @@ hostname -I | awk '{print $1}'  # Linux`;
 ]}>
   <div class="prose-custom">
     <h2 id="how-it-works">How It Works</h2>
-    <p>RoxyProxy performs HTTPS interception via a local Certificate Authority (CA). Here is what happens under the hood:</p>
+    <p>Laurel Proxy performs HTTPS interception via a local Certificate Authority (CA). Here is what happens under the hood:</p>
     <ol>
-      <li>On first startup, RoxyProxy generates a root CA certificate and private key at <code>~/.roxyproxy/ca/</code></li>
-      <li>When a client sends a CONNECT request (HTTPS), RoxyProxy:
+      <li>On first startup, Laurel Proxy generates a root CA certificate and private key at <code>~/.laurel-proxy/ca/</code></li>
+      <li>When a client sends a CONNECT request (HTTPS), Laurel Proxy:
         <ul>
           <li>Accepts the tunnel</li>
           <li>Generates a per-domain certificate signed by the CA on the fly</li>
@@ -39,10 +39,10 @@ hostname -I | awk '{print $1}'  # Linux`;
 
     <h3 id="step-1-start-the-proxy">Step 1: Start the proxy</h3>
     <p>This generates the CA certificate if it does not already exist.</p>
-    <pre><code>roxyproxy start</code></pre>
+    <pre><code>laurel-proxy start</code></pre>
 
     <h3 id="step-2-trust-the-ca-certificate">Step 2: Trust the CA certificate</h3>
-    <pre><code>roxyproxy trust-ca</code></pre>
+    <pre><code>laurel-proxy trust-ca</code></pre>
     <p>This runs the platform-specific trust command. See the table below for details on each platform.</p>
 
     <h3 id="step-3-route-https-traffic-through-the-proxy">Step 3: Route HTTPS traffic through the proxy</h3>
@@ -50,7 +50,7 @@ hostname -I | awk '{print $1}'  # Linux`;
 curl -x http://127.0.0.1:8080 https://api.example.com/data
 
 # Or enable system-wide proxy (macOS)
-roxyproxy proxy-on</code></pre>
+laurel-proxy proxy-on</code></pre>
 
     <h2 id="platform-specific-trust">Platform-Specific Trust</h2>
     <div class="table-wrap">
@@ -72,7 +72,7 @@ roxyproxy proxy-on</code></pre>
           </tr>
           <tr>
             <td><strong>Firefox</strong></td>
-            <td>Must be done manually: Settings &gt; Privacy &amp; Security &gt; Certificates &gt; View Certificates &gt; Import <code>~/.roxyproxy/ca/ca.crt</code></td>
+            <td>Must be done manually: Settings &gt; Privacy &amp; Security &gt; Certificates &gt; View Certificates &gt; Import <code>~/.laurel-proxy/ca/ca.crt</code></td>
           </tr>
         </tbody>
       </table>
@@ -90,7 +90,7 @@ roxyproxy proxy-on</code></pre>
         <tbody>
           <tr>
             <td>CA location</td>
-            <td><code>~/.roxyproxy/ca/ca.crt</code> and <code>ca.key</code></td>
+            <td><code>~/.laurel-proxy/ca/ca.crt</code> and <code>ca.key</code></td>
           </tr>
           <tr>
             <td>CA validity</td>
@@ -98,7 +98,7 @@ roxyproxy proxy-on</code></pre>
           </tr>
           <tr>
             <td>CA subject</td>
-            <td>"RoxyProxy CA"</td>
+            <td>"Laurel Proxy CA"</td>
           </tr>
           <tr>
             <td>Per-domain cert validity</td>
@@ -121,10 +121,10 @@ roxyproxy proxy-on</code></pre>
     </div>
 
     <h2 id="ios-device-inspection">iOS Device Inspection</h2>
-    <p>RoxyProxy can inspect HTTP/HTTPS traffic from an iOS device. Your computer and iOS device must be on the same Wi-Fi network.</p>
+    <p>Laurel Proxy can inspect HTTP/HTTPS traffic from an iOS device. Your computer and iOS device must be on the same Wi-Fi network.</p>
 
-    <h3>Step 1: Start RoxyProxy on your computer</h3>
-    <pre><code>roxyproxy start</code></pre>
+    <h3>Step 1: Start Laurel Proxy on your computer</h3>
+    <pre><code>laurel-proxy start</code></pre>
 
     <h3>Step 2: Note your computer's network address</h3>
     <p>The CLI prints a <code>Network</code> line on startup with your hostname, for example:</p>
@@ -153,32 +153,32 @@ roxyproxy proxy-on</code></pre>
     <h3>Step 5: Install the profile</h3>
     <ol>
       <li>Open <strong>Settings &gt; General &gt; VPN &amp; Device Management</strong> (or <strong>Profiles &amp; Device Management</strong> on older iOS)</li>
-      <li>Tap the <strong>RoxyProxy CA</strong> profile</li>
+      <li>Tap the <strong>Laurel Proxy CA</strong> profile</li>
       <li>Tap <strong>Install</strong> and enter your passcode</li>
     </ol>
 
     <h3>Step 6: Enable full trust for the certificate</h3>
     <ol>
       <li>Open <strong>Settings &gt; General &gt; About &gt; Certificate Trust Settings</strong></li>
-      <li>Toggle <strong>Enable Full Trust</strong> for <strong>RoxyProxy CA</strong></li>
+      <li>Toggle <strong>Enable Full Trust</strong> for <strong>Laurel Proxy CA</strong></li>
       <li>Tap <strong>Continue</strong> on the warning dialog</li>
     </ol>
-    <p>HTTPS traffic from the iOS device is now fully inspectable through RoxyProxy.</p>
+    <p>HTTPS traffic from the iOS device is now fully inspectable through Laurel Proxy.</p>
 
     <h3>Viewing traffic</h3>
     <p>Open the web UI from any browser:</p>
     <pre><code>http://&lt;your-computer-ip&gt;:8081</code></pre>
     <p>Or use the CLI:</p>
-    <pre><code>roxyproxy requests --tail</code></pre>
+    <pre><code>laurel-proxy requests --tail</code></pre>
 
     <h2 id="cleanup">Cleanup</h2>
     <p>When you are done inspecting, remove the proxy from iOS:</p>
     <ol>
       <li><strong>Settings &gt; Wi-Fi &gt; (i) &gt; Configure Proxy &gt; Off</strong></li>
-      <li>Optionally remove the CA profile: <strong>Settings &gt; General &gt; VPN &amp; Device Management &gt; RoxyProxy CA &gt; Remove Profile</strong></li>
+      <li>Optionally remove the CA profile: <strong>Settings &gt; General &gt; VPN &amp; Device Management &gt; Laurel Proxy CA &gt; Remove Profile</strong></li>
     </ol>
     <p>On your computer, you can uninstall the CA certificate from your system trust store:</p>
-    <pre><code>roxyproxy uninstall-ca</code></pre>
+    <pre><code>laurel-proxy uninstall-ca</code></pre>
 
     <h2 id="related">Related</h2>
     <ul>
