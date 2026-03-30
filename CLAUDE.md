@@ -4,7 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Marketing/documentation website for [Laurel Proxy](https://github.com/rvanbaalen/laurelproxy) (locally at `~/Sites/laurelproxy`), an HTTP/HTTPS intercepting proxy for developers and AI agents. The site is at https://laurelproxy.robinvanbaalen.nl.
+Marketing/documentation website for [Laurel Proxy](https://github.com/rvanbaalen/laurelproxy) — an HTTP/HTTPS intercepting proxy for developers and AI agents. The site is at https://laurelproxy.robinvanbaalen.nl.
+
+### Related Repos
+
+- **Main app**: [`rvanbaalen/laurelproxy`](https://github.com/rvanbaalen/laurelproxy) — locally at `~/Sites/laurelproxy`
+- **Install**: `npm install -g laurel-proxy` (global) or `npx laurel-proxy` (run instantly)
 
 ## Commands
 
