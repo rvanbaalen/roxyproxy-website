@@ -1,0 +1,76 @@
+---
+const base = import.meta.env.BASE_URL;
+
+const features = [
+  {
+    title: "HTTP Interception",
+    description: "Capture every request and response passing through the proxy with full headers, bodies, and timing.",
+    link: `${base}docs/getting-started/`,
+  },
+  {
+    title: "HTTPS Interception",
+    description: "Decrypt TLS traffic with an auto-generated CA certificate. See encrypted requests in cleartext.",
+    link: `${base}docs/https/`,
+  },
+  {
+    title: "Web UI Dashboard",
+    description: "Real-time traffic viewer with filters, sorting, detail panel, and built-in request repeater.",
+    link: `${base}docs/web-ui/`,
+  },
+  {
+    title: "REST API",
+    description: "Query captured traffic, replay requests, stream events, and control the proxy programmatically.",
+    link: `${base}docs/api/`,
+  },
+  {
+    title: "AI Agent Plugin",
+    description: "MCP server that lets AI coding agents query and replay traffic. Structured JSON output included.",
+    link: `${base}docs/agent-plugin/`,
+  },
+  {
+    title: "Request Replay",
+    description: "Resend any captured request against your local server. Modify headers or body and iterate.",
+    link: `${base}docs/cli/`,
+  },
+  {
+    title: "cURL Export",
+    description: "Copy any captured request as a cURL command. Share with teammates or use in scripts.",
+    link: `${base}docs/web-ui/`,
+  },
+  {
+    title: "Real-time SSE Streaming",
+    description: "Subscribe to live traffic events via Server-Sent Events. Build custom dashboards or monitors.",
+    link: `${base}docs/api/`,
+  },
+  {
+    title: "System Proxy",
+    description: "Route all macOS HTTP/HTTPS traffic through Laurel Proxy with one command or one click.",
+    link: `${base}docs/configuration/`,
+  },
+];
+---
+
+<section class="px-6 md:px-12 py-16 md:py-24 border-t border-border">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-10">
+      <h2 class="text-text-primary text-2xl md:text-3xl font-bold tracking-tight mb-3">
+        Everything at a glance
+      </h2>
+      <p class="text-text-secondary">
+        One proxy. Three interfaces. Full visibility.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-3">
+      {features.map((feature) => (
+        <a
+          href={feature.link}
+          class="block border-l-2 border-accent bg-bg-secondary/50 rounded-r-lg py-3 px-4 hover:bg-bg-secondary transition-colors group"
+        >
+          <h3 class="text-text-primary font-semibold text-sm mb-1 group-hover:text-accent transition-colors">{feature.title}</h3>
+          <p class="text-text-secondary text-sm leading-relaxed">{feature.description}</p>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>

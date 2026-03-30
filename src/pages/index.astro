@@ -4,8 +4,9 @@ import Nav from "../components/Nav.astro";
 import InstallBlock from "../components/InstallBlock.astro";
 import Footer from "../components/Footer.astro";
 import TerminalReplay from "../components/TerminalReplay.tsx";
-import WebUIMockup from "../components/WebUIMockup.astro";
-import CLIMockup from "../components/CLIMockup.astro";
+import WebUIShowcase from "../components/WebUIShowcase.astro";
+import ApiShowcase from "../components/ApiShowcase.astro";
+import FeatureGrid from "../components/FeatureGrid.astro";
 
 const base = import.meta.env.BASE_URL;
 
@@ -203,46 +204,9 @@ const capabilities = [
       })}
     </section>
 
-    <!-- Built for developers. Ready for AI agents. -->
-    <section class="px-6 md:px-12 py-16 md:py-24 border-t border-border">
-      <div class="max-w-6xl mx-auto">
-        <div class="text-center mb-12">
-          <div class="text-accent text-xs uppercase tracking-[2px] mb-3 font-medium">Two interfaces, one proxy</div>
-          <h2 class="text-text-primary text-2xl md:text-3xl font-bold tracking-tight mb-3">
-            Built for developers. Ready for AI agents.
-          </h2>
-          <p class="text-text-secondary max-w-2xl mx-auto">
-            Every captured request is available through a visual web dashboard for manual inspection and a structured CLI for AI-powered debugging. Same data, your choice of interface.
-          </p>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-10">
-          <!-- Web Dashboard -->
-          <div>
-            <h3 class="text-text-primary font-semibold text-lg mb-2">Web Dashboard</h3>
-            <p class="text-text-secondary text-sm mb-4 leading-relaxed">
-              Real-time traffic streaming, sortable columns, host and status filters, and a detail panel showing full headers and response bodies. Grab a captured request and send it to the Repeater to edit and resend it. Proxy state syncs live between the dashboard and CLI.
-            </p>
-            <WebUIMockup />
-            <a href={`${base}docs/web-ui/`} class="text-accent hover:text-accent-dim text-sm mt-3 inline-block transition-colors">
-              Read docs: Web UI &rarr;
-            </a>
-          </div>
-
-          <!-- CLI + Agent -->
-          <div>
-            <h3 class="text-text-primary font-semibold text-lg mb-2">CLI + AI Agent Plugin</h3>
-            <p class="text-text-secondary text-sm mb-4 leading-relaxed">
-              Query captured traffic from the command line or let your AI coding agent do it. The <code class="text-accent text-xs bg-bg-secondary px-1 py-0.5 rounded">--format agent</code> flag returns structured JSON your AI can parse, diagnose, and act on without switching context.
-            </p>
-            <CLIMockup />
-            <a href={`${base}docs/agent-plugin/`} class="text-accent hover:text-accent-dim text-sm mt-3 inline-block transition-colors">
-              Read docs: AI Agent Plugin &rarr;
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
+    <WebUIShowcase />
+    <ApiShowcase />
+    <FeatureGrid />
 
     <!-- Bottom CTA -->
     <section class="px-6 md:px-12 py-16 md:py-24 border-t border-border">

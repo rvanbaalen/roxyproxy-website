@@ -1,0 +1,73 @@
+---
+const base = import.meta.env.BASE_URL;
+
+const features = [
+  {
+    title: "Real-time streaming",
+    description: "Requests appear as they happen. No refresh, no polling. SSE-powered live updates.",
+  },
+  {
+    title: "Filter & search",
+    description: "Narrow by status code, HTTP method, host, or URL path. Combine filters for precision.",
+  },
+  {
+    title: "Request detail panel",
+    description: "Click any row to inspect full headers, response bodies, timing, and protocol details.",
+  },
+  {
+    title: "Repeater",
+    description: "Grab any captured request, edit the method, URL, headers, or body, and resend it.",
+  },
+  {
+    title: "cURL export",
+    description: "One-click copy of any request as a cURL command. Share with teammates or script it.",
+  },
+  {
+    title: "System proxy toggle",
+    description: "Route all macOS HTTP/HTTPS traffic through the proxy with a single click.",
+  },
+];
+---
+
+<section class="px-6 md:px-12 py-16 md:py-24 border-t border-border">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-10">
+      <div class="text-accent text-xs uppercase tracking-[2px] mb-3 font-medium">Built for humans</div>
+      <h2 class="text-text-primary text-2xl md:text-3xl font-bold tracking-tight mb-3">
+        Every request, one click away
+      </h2>
+      <p class="text-text-secondary max-w-2xl mx-auto">
+        A real-time dashboard for inspecting all HTTP and HTTPS traffic passing through the proxy. Filter, sort, drill into details, and replay requests without leaving the browser.
+      </p>
+    </div>
+
+    <img
+      src={`${base}screenshots/web-ui-request-list.png`}
+      alt="Laurel Proxy web dashboard showing live HTTP traffic with filters, sortable columns, and request details"
+      loading="lazy"
+      class="w-full rounded-lg border border-accent/20 mb-10"
+      style="box-shadow: 0 0 30px rgba(34, 197, 94, 0.08), 0 0 60px rgba(34, 197, 94, 0.04);"
+    />
+
+    <div class="grid md:grid-cols-3 gap-6 mb-8">
+      {features.map((feature) => (
+        <div class="flex items-start gap-3">
+          <span class="mt-1.5 w-2 h-2 rounded-full bg-accent shrink-0" style="box-shadow: 0 0 6px rgba(34,197,94,0.4);"></span>
+          <div>
+            <h3 class="text-text-primary font-semibold text-sm mb-1">{feature.title}</h3>
+            <p class="text-text-secondary text-sm leading-relaxed">{feature.description}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="text-center">
+      <a
+        href={`${base}docs/web-ui/`}
+        class="text-accent hover:text-accent-dim text-sm font-medium transition-colors"
+      >
+        Read docs: Web UI &rarr;
+      </a>
+    </div>
+  </div>
+</section>
